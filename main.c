@@ -55,7 +55,11 @@ int main(int argc, char *argv[])
 	Lombric *lombric = NouveauLombric();
 	Cadeau *cadeau = NULL;
 	
-	SDL_Rect rect_info = {.x = LARGEUR_FENETRE - 200, .y = 0, .w = 200, .h = HAUTEUR_FENETRE};
+	SDL_Rect fond_fenetre = {.x = 0, .y = 0, .w = LARGEUR_FENETRE, .h = HAUTEUR_FENETRE};
+	SDL_Point bord[POINTS_COUNT] = {{TUILE, TUILE},
+										{LARGEUR_TERRAIN - TUILE, TUILE},
+										{LARGEUR_TERRAIN - TUILE, HAUTEUR_TERRAIN - TUILE},
+										{TUILE, HAUTEUR_TERRAIN - TUILE}};
 	
 	char score[10];
 	char record[10];
@@ -91,7 +95,13 @@ int main(int argc, char *argv[])
 		if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE) != 0)
 			SDL_ExitWithError("Impossible de changer la couleur du rendu");
 		
-		if (SDL_RenderFillRect(renderer, &rect_info) != 0)
+		if (SDL_RenderFillRect(renderer, &fond_fenetre) != 0)
+			SDL_ExitWithError("Impossible de dessiner un rectangle");
+		
+		if (SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE) != 0)
+			SDL_ExitWithError("Impossible de changer la couleur du rendu");
+			
+		if (SDL_RenderDrawLines(renderer, bord, 4) != 0)
 			SDL_ExitWithError("Impossible de dessiner un rectangle");
 		
 		
