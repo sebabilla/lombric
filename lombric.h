@@ -71,7 +71,7 @@ void NettoyerTerrain(Evenement **t);
 Lombric *NouveauLombric(void);
 Anneau *AjouterQueue(Anneau *a);
 void LibererAnneaux(Anneau *a);
-void InsererLombric(Evenement **t, Anneau *a, Lombric *l);
+void InsererLombric(Evenement **t, Anneau *a);
 void PoserLosange(Evenement **t, Anneau *a, Evenement e);
 Lombric *NouvelleTete(Lombric *l);
 void DetruireQueue(Anneau *a);

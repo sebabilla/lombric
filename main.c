@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 //------------Régénérer la matrice du terrain---------------------------
 		
 		NettoyerTerrain(terrain);
-		InsererLombric(terrain, lombric->tete, lombric);
+		InsererLombric(terrain, lombric->tete);
 		
 		if (NiveauSupplementaire(lombric) == VRAI)
 		{

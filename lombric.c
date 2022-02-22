@@ -132,10 +132,10 @@ Anneau *AjouterQueue(Anneau *a)
 	return a;	
 }
 
-void InsererLombric(Evenement **t, Anneau *a, Lombric *l)
+void InsererLombric(Evenement **t, Anneau *a)
 {
 	if(a->suivant != NULL)
-		InsererLombric(t, a->suivant, l);
+		InsererLombric(t, a->suivant);
 		
 	if(a->suivant == NULL)
 		PoserLosange(t, a, LOMBRICAGE);
