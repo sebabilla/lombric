@@ -2,13 +2,14 @@
 #define __LOMBRIC__H__
 
 #define TITRE "Lombric en C"
-#define LARGEUR_FENETRE 800
-#define HAUTEUR_FENETRE 600
-#define LARGEUR_TERRAIN 600
-#define HAUTEUR_TERRAIN 600
+#define LARGEUR_FENETRE 1024
+#define HAUTEUR_FENETRE 768
+#define LARGEUR_TERRAIN 750
+#define HAUTEUR_TERRAIN 750
+#define SHIFT 9
 #define TEMPSCADEAU 300
 #define FPS 16
-#define TUILE 20
+#define TUILE 25
 
 typedef enum Bool
 {
@@ -23,7 +24,7 @@ typedef enum Direction
 
 typedef enum CouleurTexte
 {
-	BLANC, GRIS, JAUNE
+	BLANC, GRIS, JAUNE, NOIR
 } CouleurTexte;
 
 typedef enum Evenement
@@ -56,22 +57,26 @@ typedef struct Lombric
 	Anneau *tete;
 } Lombric;
 
-Evenement **NouveauTerrain(void); // d'après www.geeksforgeeks.org/dynamically-allocate-2d-array-c/
-void NettoyerTerrain(Evenement **t);
+typedef struct Cadeau
+{
+	int x;
+	int y;
+	Evenement evm[3];
+	int compteur;
+	struct Cadeau *suivant;
+} Cadeau;
 
 Lombric *NouveauLombric(void);
-Anneau *AjouterQueue(Anneau *a);
+Anneau *AjouterQueue(Anneau *a, Bool nouveau);
 void LibererAnneaux(Anneau *a);
-void InsererLombric(Evenement **t, Anneau *a);
-void PoserLosange(Evenement **t, Anneau *a, Evenement e);
 Lombric *NouvelleTete(Lombric *l);
 void DetruireQueue(Anneau *a);
 void ChangerDirection(int b, Lombric *l);
 Lombric *Bouger(Lombric *l);
 Bool CollisionTeteMur(Anneau *a);
-Bool CollisionTeteLombric(Anneau *a, Evenement **t);
-Bool CollisionTeteCadeau(Anneau *a, Evenement **t);
+Bool CollisionLombric(Anneau *a, int x, int y, Bool vieux);
 int LongueurLombric(Anneau *a);
 Bool NiveauSupplementaire(Lombric *l);
+void VieillirLombric(Anneau *a);
 
 #endif

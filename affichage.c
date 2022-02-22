@@ -24,24 +24,26 @@ void limit_fps(unsigned int limit)
 		SDL_Delay(limit - t); // faire une petite pause
 }
 
-void AfficherTerrain(SDL_Renderer *r, int i, int j, Evenement evm)
+void AfficherCadeau(SDL_Renderer *r, SDL_Rect *rect_c, Cadeau *c)
 {
+	if (c->suivant != NULL)
+		AfficherCadeau(r, rect_c, c->suivant);
+		
+	rect_c->x = c->x + SHIFT;
+	rect_c->y = c->y + SHIFT;
+	
 	int R = 0, G = 0, B = 0;
+	Evenement evm = RIEN;
+	
+	if (c->compteur > TEMPSCADEAU / 2)
+		evm = c->evm[0];
+	else if (c->compteur < TEMPSCADEAU / 5)
+		evm = c->evm[2];
+	else
+		evm = c->evm[1];
 	
 	switch(evm)
 	{
-		case RIEN:
-			R = 0; G = 0; B = 0;
-			break;
-		case BORD:
-			R = 50; G = 50; B = 50;
-			break;
-		case LOMBRIC:
-			R = 255, G = 180; B = 195;
-			break;
-		case LOMBRICAGE:
-			R = 225, G = 145; B = 160;
-			break;
 		case MO:
 			R = 255;
 			break;
@@ -73,12 +75,46 @@ void AfficherTerrain(SDL_Renderer *r, int i, int j, Evenement evm)
 			break;
 	}
 	
-	
-	if (SDL_SetRenderDrawColor(r, R, G, B, SDL_ALPHA_TRANSPARENT) != 0)
+	if (SDL_SetRenderDrawColor(r, R, G, B, SDL_ALPHA_OPAQUE) != 0)
 		SDL_ExitWithError("Impossible de changer la couleur du rendu");
+		
+	if (SDL_RenderFillRect(r, rect_c) != 0)
+		SDL_ExitWithError("Impossible de dessiner un rectangle");
+}
+
+void AfficherLombric(SDL_Renderer *r, SDL_Rect *rect_c, Anneau *a)
+{
+	if (a->suivant != NULL)
+		AfficherLombric(r, rect_c, a->suivant);
 	
-	if (SDL_RenderDrawPoint(r, i, j) != 0)
-		SDL_ExitWithError("Impossible de changer la couleur du point");
+	if (SDL_SetRenderDrawColor(r, 255, 180, 195, SDL_ALPHA_OPAQUE) != 0)
+		SDL_ExitWithError("Impossible de changer la couleur du rendu");	
+	
+	int X1, X2, Y1, Y2;
+	
+	switch(a->evm)
+	{
+		case LOMBRIC:
+				if (a->dir == GAUCHE || a->dir == DROITE)
+				{
+					X1 = a->x + SHIFT; Y1 = a->y - TUILE / 2 + SHIFT; X2 = a->x + SHIFT; Y2 = a->y + TUILE / 2 + SHIFT;
+				}		
+				else
+				{
+					X1 = a->x - TUILE / 2 + SHIFT; Y1 = a->y + SHIFT; X2 = a->x + TUILE / 2 + SHIFT; Y2 = a->y + SHIFT;
+				}
+				if (SDL_RenderDrawLine(r, X1, Y1, X2, Y2) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+			break;
+		case LANGLE:
+			rect_c->x = a->x - TUILE / 2 + SHIFT;
+			rect_c->y = a->y - TUILE / 2 + SHIFT;
+			if (SDL_RenderFillRect(r, rect_c) != 0)
+				SDL_ExitWithError("Impossible de dessiner un rectangle");
+			break;
+		default:
+			break;
+	}
 }
 
 void EcrireTexte(SDL_Renderer *r, char *texte, TTF_Font *f, int X, int Y, int W, int H, CouleurTexte c)
@@ -91,11 +127,15 @@ void EcrireTexte(SDL_Renderer *r, char *texte, TTF_Font *f, int X, int Y, int W,
 	}
 	if (c == GRIS)
 	{
-		couleur.r = 160; couleur.g = 160; couleur.b = 160, couleur.a = 0;
+		couleur.r = 180; couleur.g = 180; couleur.b = 180, couleur.a = 0;
 	}
 	if (c == JAUNE)
 	{
 		couleur.r = 250; couleur.g = 250; couleur.b = 0, couleur.a = 0;
+	}
+	if (c == NOIR)
+	{
+		couleur.r = 0; couleur.g = 0; couleur.b = 0, couleur.a = 0;
 	}
 									
 	SDL_Surface *surfaceMessage = TTF_RenderUTF8_Blended(f, texte, couleur);
@@ -118,37 +158,40 @@ void AfficherPerdu(SDL_Renderer *r, TTF_Font *f)
 
 void AfficherCommandes(SDL_Renderer *r, TTF_Font *f)
 {
-	EcrireTexte(r, "Espace", f, LARGEUR_FENETRE - 190, HAUTEUR_FENETRE - 125, 50, 25, GRIS);
-	EcrireTexte(r, "PAUSE", f, LARGEUR_FENETRE - 125, HAUTEUR_FENETRE - 125, 50, 25, GRIS);
-	EcrireTexte(r, "Entrée", f, LARGEUR_FENETRE - 190, HAUTEUR_FENETRE - 100, 50, 25, GRIS);
-	EcrireTexte(r, "RECOMMENCER", f, LARGEUR_FENETRE - 125, HAUTEUR_FENETRE - 100, 110, 25, GRIS);
-	EcrireTexte(r, "Echap", f, LARGEUR_FENETRE - 190, HAUTEUR_FENETRE - 75, 50, 25, GRIS);
-	EcrireTexte(r, "QUITTER", f, LARGEUR_FENETRE - 125, HAUTEUR_FENETRE - 75, 62, 25, GRIS);
+	EcrireTexte(r, "Espace", f, LARGEUR_FENETRE - 230, HAUTEUR_FENETRE - 125, 60, 25, GRIS);
+	EcrireTexte(r, "PAUSE", f, LARGEUR_FENETRE - 160, HAUTEUR_FENETRE - 125, 60, 25, GRIS);
+	EcrireTexte(r, "Entrée", f, LARGEUR_FENETRE - 230, HAUTEUR_FENETRE - 100, 60, 25, GRIS);
+	EcrireTexte(r, "RECOMMENCER", f, LARGEUR_FENETRE - 160, HAUTEUR_FENETRE - 100, 135, 25, GRIS);
+	EcrireTexte(r, "Echap", f, LARGEUR_FENETRE - 230, HAUTEUR_FENETRE - 75, 50, 25, GRIS);
+	EcrireTexte(r, "QUITTER", f, LARGEUR_FENETRE - 160, HAUTEUR_FENETRE - 75, 75, 25, GRIS);
 }
 
 void AfficherLegende(SDL_Renderer *r, TTF_Font *f)
 {
-	EcrireTexte(r, "Feuilles d'automne", f, LARGEUR_FENETRE - 170, HAUTEUR_FENETRE - 250, 170, 25, BLANC);
-	EcrireTexte(r, "Exsudats racinaires", f, LARGEUR_FENETRE - 170, HAUTEUR_FENETRE - 225, 170, 25, BLANC);
-	EcrireTexte(r, "Pesticides", f, LARGEUR_FENETRE - 170, HAUTEUR_FENETRE - 200, 80, 25, BLANC);
-
-	SDL_Rect Rouge = {.x = LARGEUR_FENETRE - 195, .y = HAUTEUR_FENETRE - 250, .w = TUILE, .h = TUILE};
+	SDL_Rect Rouge = {.x = LARGEUR_FENETRE - 255, .y = HAUTEUR_FENETRE - 260, .w = TUILE, .h = TUILE};
 	if (SDL_SetRenderDrawColor(r, 255, 0, 0, SDL_ALPHA_TRANSPARENT) != 0)
 		SDL_ExitWithError("Impossible de changer la couleur du rendu");
 	if (SDL_RenderFillRect(r, &Rouge) != 0)
 			SDL_ExitWithError("Impossible de dessiner un rectangle");
 	
-	SDL_Rect Bleu = {.x = LARGEUR_FENETRE - 195, .y = HAUTEUR_FENETRE - 225, .w = TUILE, .h = TUILE};
-	if (SDL_SetRenderDrawColor(r, 30, 144, 255, SDL_ALPHA_TRANSPARENT) != 0)
+	SDL_Rect Bleu = {.x = LARGEUR_FENETRE - 255, .y = HAUTEUR_FENETRE - 230, .w = TUILE, .h = TUILE};
+	if (SDL_SetRenderDrawColor(r, 30, 144, 205, SDL_ALPHA_TRANSPARENT) != 0)
 		SDL_ExitWithError("Impossible de changer la couleur du rendu");
 	if (SDL_RenderFillRect(r, &Bleu) != 0)
 			SDL_ExitWithError("Impossible de dessiner un rectangle");
 	
-	SDL_Rect Vert = {.x = LARGEUR_FENETRE - 195, .y = HAUTEUR_FENETRE - 200, .w = TUILE, .h = TUILE};
+	SDL_Rect Vert = {.x = LARGEUR_FENETRE - 255, .y = HAUTEUR_FENETRE - 200, .w = TUILE, .h = TUILE};
 	if (SDL_SetRenderDrawColor(r, 0, 255, 0, SDL_ALPHA_TRANSPARENT) != 0)
 		SDL_ExitWithError("Impossible de changer la couleur du rendu");
 	if (SDL_RenderFillRect(r, &Vert) != 0)
 			SDL_ExitWithError("Impossible de dessiner un rectangle");
 	
+	EcrireTexte(r, "t++", f, LARGEUR_FENETRE - 228, HAUTEUR_FENETRE - 260, TUILE, TUILE, JAUNE);
+	EcrireTexte(r, "v++", f, LARGEUR_FENETRE - 228, HAUTEUR_FENETRE - 230, TUILE, TUILE, JAUNE);
+	EcrireTexte(r, "v--", f, LARGEUR_FENETRE - 228, HAUTEUR_FENETRE - 200, TUILE, TUILE, JAUNE);
+	
+	EcrireTexte(r, "Feuilles d'automne", f, LARGEUR_FENETRE - 190, HAUTEUR_FENETRE - 260, 170, 25, BLANC);
+	EcrireTexte(r, "Exsudats racinaires", f, LARGEUR_FENETRE - 190, HAUTEUR_FENETRE - 230, 180, 25, BLANC);
+	EcrireTexte(r, "Pesticides", f, LARGEUR_FENETRE - 190, HAUTEUR_FENETRE - 200, 95, 25, BLANC);
 }
 

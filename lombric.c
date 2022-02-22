@@ -2,47 +2,6 @@
 #include <stdlib.h>
 #include "lombric.h"
 
-Evenement **NouveauTerrain(void) 
-{
-	Evenement **t = (Evenement**)malloc(sizeof(Evenement *) * HAUTEUR_TERRAIN + sizeof(Evenement) * LARGEUR_TERRAIN * HAUTEUR_TERRAIN);
-	if (t == NULL)
-	{
-		free(t);
-		printf("Erreur d'allocation mémoire\n");
-		return NULL;
-	}
-	
-	Evenement *ptr = (Evenement *)(t + HAUTEUR_TERRAIN);
-	for(int i = 0; i < HAUTEUR_TERRAIN; i++)
-        t[i] = (ptr + LARGEUR_TERRAIN * i);
-	
-	NettoyerTerrain(t);
-
-	return t;	
-}
-
-void NettoyerTerrain(Evenement **t)
-{
-	for (int i = TUILE; i < LARGEUR_TERRAIN - TUILE; i++)
-		for (int j = TUILE; j < HAUTEUR_TERRAIN - TUILE; j++)
-			t[i][j] = RIEN;
-	
-	for (int i = 0; i < LARGEUR_TERRAIN; i++)
-		for (int j = 0; j < TUILE; j++)
-		{
-	
-			t[i][j] = BORD;
-			t[i][HAUTEUR_TERRAIN - TUILE + j] = BORD;
-		}
-	for (int j = 0; j < HAUTEUR_TERRAIN; j++)
-		for (int i = 0; i < TUILE; i++)
-		{
-	
-			t[i][j] = BORD;
-			t[LARGEUR_TERRAIN - TUILE + i][j] = BORD;
-		}
-}
-
 Lombric *NouveauLombric(void)
 {
 	Anneau *a = malloc(sizeof(Anneau));
@@ -71,20 +30,20 @@ Lombric *NouveauLombric(void)
 	
 	l->evm = RIEN;
 	l->pas = 0;
-	l->vitesse = 2;
+	l->vitesse = 3;
 	l->longueur = 0;
 	l->point = 0;
 	l->niveau = 0;
 	l->tete = a;
 
 	for (int i = 0; i < (2 * TUILE); i++)
-		AjouterQueue(l->tete);
+		AjouterQueue(l->tete, VRAI);
 
 	return l;
 	
 }
 
-Anneau *AjouterQueue(Anneau *a)
+Anneau *AjouterQueue(Anneau *a, Bool nouveau)
 {
 	if (a->suivant == NULL)
 	{
@@ -95,8 +54,12 @@ Anneau *AjouterQueue(Anneau *a)
 			printf("Erreur d'allocation mémoire\n");
 			return NULL;
 		}
-
-		n->age = 1;
+		
+		if (nouveau == VRAI)
+			n->age = 0;
+		else
+			n->age = 2 * TUILE;
+		
 		n->dir = a->dir;
 		n->evm = LOMBRIC;
 		n->suivant = NULL;
@@ -128,57 +91,8 @@ Anneau *AjouterQueue(Anneau *a)
 		return a;
 	}
 	
-	AjouterQueue(a->suivant);
+	AjouterQueue(a->suivant, nouveau);
 	return a;	
-}
-
-void InsererLombric(Evenement **t, Anneau *a)
-{
-	if(a->suivant != NULL)
-		InsererLombric(t, a->suivant);
-		
-	if(a->suivant == NULL)
-		PoserLosange(t, a, LOMBRICAGE);
-	
-	switch(a->evm)
-	{
-		case LOMBRIC:
-			if (a->age == 1)
-			{
-				if (a->dir == GAUCHE || a->dir == DROITE)
-					for (int i = 0; i < TUILE; i++)
-						t[a->x][(a->y) - TUILE / 2 + i] = LOMBRICAGE;		
-				else
-					for (int i = 0; i < TUILE; i++)
-						t[(a->x) - TUILE / 2 + i][a->y] = LOMBRICAGE;
-			}
-			else 
-			{
-				PoserLosange(t, a, LOMBRIC);
-			}
-			break;
-		case LANGLE:
-			PoserLosange(t, a, LOMBRIC);
-			break;
-		default:
-			break;
-	}	
-}
-
-void PoserLosange(Evenement **t, Anneau *a, Evenement e)
-{
-	for (int i = - TUILE / 2 ; i <=  0; i++)
-				for (int j = 0; j >= - TUILE / 2 - i; j--)
-					t[(a->x) + i][(a->y) + j] = e;
-			for (int i = 0; i <=  TUILE / 2; i++)
-				for (int j = 0; j >= - TUILE / 2 + i; j--)
-					t[(a->x) + i][(a->y) + j] = e;
-			for (int i = 0; i <= TUILE / 2; i++)
-				for (int j = 0; j <= TUILE / 2 - i; j++)
-					t[(a->x) + i][(a->y) + j] = e;
-			for (int i = - TUILE / 2 ; i <=  0; i++)
-				for (int j = 0; j <= TUILE / 2 + i; j++)
-					t[(a->x) + i][(a->y) + j] = e;
 }
 
 void LibererAnneaux(Anneau *a)
@@ -301,7 +215,7 @@ Lombric *Bouger(Lombric *l)
 		case MO:
 			l->evm = RIEN;
 			for (int i = 0; i < TUILE; i ++)
-				AjouterQueue(l->tete);
+				AjouterQueue(l->tete, FAUX);
 			break;
 		case VITPLUS:
 			l->evm = RIEN;
@@ -328,35 +242,29 @@ Lombric *Bouger(Lombric *l)
 
 Bool CollisionTeteMur(Anneau *a)
 {
-	if (a->x < TUILE)
+	if (a->x < 0)
 		return VRAI;
-	if (a->x > LARGEUR_TERRAIN - TUILE)
+	if (a->x > LARGEUR_TERRAIN)
 		return VRAI;
-	if (a->y < TUILE)
+	if (a->y < 0)
 		return VRAI;
-	if (a->y > HAUTEUR_TERRAIN - TUILE)
-		return VRAI;
-	return FAUX;
-}
-
-Bool CollisionTeteLombric(Anneau *a, Evenement **t)
-{
-	if (t[a->x][a->y] == LOMBRICAGE)
+	if (a->y > HAUTEUR_TERRAIN)
 		return VRAI;
 	return FAUX;
 }
 
-Bool CollisionTeteCadeau(Anneau *a, Evenement **t)
-{
-	if (a->dir == GAUCHE || a->dir == DROITE)
-		for (int i = - TUILE / 2; i < TUILE / 2; i++)
-			if (t[a->x][a->y + i] != RIEN && t[a->x][a->y + i] != BORD && t[a->x][a->y + i] != LOMBRIC && t[a->x][a->y + i] != LOMBRICAGE)
-				return VRAI;
-	if (a->dir == HAUT || a->dir == BAS)
-		for (int i = - TUILE / 2; i < TUILE / 2; i++)
-			if (t[a->x + i][a->y] != RIEN && t[a->x + i][a->y] != BORD && t[a->x + i][a->y] != LOMBRIC && t[a->x + i][a->y] != LOMBRICAGE)
-				return VRAI;
-		
+Bool CollisionLombric(Anneau *a, int x, int y, Bool vieux)
+{	
+	if (vieux == VRAI)
+		if (a->age > TUILE && abs(a->x - x) < TUILE / 2 && abs(a->y - y) < TUILE / 2)
+			return VRAI;
+	if (vieux == FAUX)
+		if (abs(a->x - x) < 2 * TUILE && abs(a->y - y) < 2 * TUILE)
+			return VRAI;
+	
+	if (a->suivant != 0)
+		return CollisionLombric(a->suivant, x, y, vieux);
+	
 	return FAUX;
 }
 
@@ -419,4 +327,12 @@ Bool NiveauSupplementaire(Lombric *l)
 	}
 		
 	return FAUX;
+}
+
+void VieillirLombric(Anneau *a)
+{
+	a->age++;
+	
+	if (a->suivant != NULL)
+		VieillirLombric(a->suivant);
 }

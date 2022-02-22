@@ -9,6 +9,7 @@
 #include "affichage.h"
 #include "controle.h"
 
+
 int main(int argc, char *argv[])
 {
 //------------------Création d'une fenêtre et de son rendu--------------
@@ -29,8 +30,21 @@ int main(int argc, char *argv[])
 		
 	TTF_Font *font = TTF_OpenFont("res/Orbitron.ttf", 100);
 	if (!font)
-		SDL_ExitWithError("Chargement de la police");	
+		SDL_ExitWithError("Chargement de la police");
 
+//------------------Chargement de l'icone-------------------------------
+		
+	SDL_Surface *image = NULL;
+	SDL_Texture *textureimage = NULL;
+	SDL_Rect rect_image = {.w = 100, .h = 100};
+	rect_image.x = LARGEUR_FENETRE - (LARGEUR_FENETRE - HAUTEUR_FENETRE) / 2 - (rect_image.w / 2) ; 
+	rect_image.y = HAUTEUR_FENETRE / 2;
+	
+	if ((image = SDL_LoadBMP("res/lombric.bmp")) == NULL)
+		SDL_ExitWithError("Impossible de charger l'image");
+	if ((textureimage = SDL_CreateTextureFromSurface(renderer, image)) == NULL)
+		SDL_ExitWithError("Impossible de charger l'image");
+	SDL_FreeSurface(image);
 
 //------------------Chargement d'un éventuel joystic--------------------
 
@@ -50,16 +64,17 @@ int main(int argc, char *argv[])
 	unsigned int frame_limit = 0;
 	
 	Direction bouton = SANS;
-	
-	Evenement **terrain = NouveauTerrain(); 
+
 	Lombric *lombric = NouveauLombric();
 	Cadeau *cadeau = NULL;
 	
 	SDL_Rect fond_fenetre = {.x = 0, .y = 0, .w = LARGEUR_FENETRE, .h = HAUTEUR_FENETRE};
-	SDL_Point bord[POINTS_COUNT] = {{TUILE, TUILE},
-										{LARGEUR_TERRAIN - TUILE, TUILE},
-										{LARGEUR_TERRAIN - TUILE, HAUTEUR_TERRAIN - TUILE},
-										{TUILE, HAUTEUR_TERRAIN - TUILE}};
+	SDL_Point bord[5] = {{SHIFT, SHIFT},
+						{LARGEUR_TERRAIN + SHIFT, SHIFT},
+						{LARGEUR_TERRAIN + SHIFT, HAUTEUR_TERRAIN + SHIFT},
+						{SHIFT, HAUTEUR_TERRAIN + SHIFT},
+						{SHIFT, SHIFT}};
+	SDL_Rect rect_cadeau = {.w = TUILE, .h = TUILE};
 	
 	char score[10];
 	char record[10];
@@ -67,25 +82,27 @@ int main(int argc, char *argv[])
 	int record_temp = 0;
 	int debut = SDL_GetTicks();
 	int maintenant = SDL_GetTicks();
+	int anim_niveau = 0;
 	
 //------------Lancement du jeu, en boucle infinie-----------------------
 	
 	while (program_launched)
 	{
-//------------Régénérer la matrice du terrain---------------------------
-		
-		NettoyerTerrain(terrain);
-		InsererLombric(terrain, lombric->tete);
-		
+//------------Level up ?------------------------------------------------
+
 		if (NiveauSupplementaire(lombric) == VRAI)
 		{
 			if (cadeau == NULL)
-				cadeau = NouveauCadeau(terrain); // Placé ici pour ne pas avoir de cadeau sur le lombric... fonctionne mieux, mais encore quelques fails...
+			{
+				cadeau = NouveauCadeau(cadeau, lombric->tete); // Placé ici pour ne pas avoir de cadeau sur le premier lombric... fonctionne mieux, mais encore quelques fails...
+				anim_niveau = -10000;
+			}
 			else
-				CadeauSupplementaire(cadeau, terrain);
+			{
+				CadeauSupplementaire(cadeau, cadeau, lombric->tete);
+				anim_niveau = SDL_GetTicks();
+			}
 		}
-		
-		InsererCadeau(terrain, cadeau);
 		
 //------------Régénérer l'affichage dans la fenêtre---------------------
 		
@@ -101,26 +118,30 @@ int main(int argc, char *argv[])
 		if (SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE) != 0)
 			SDL_ExitWithError("Impossible de changer la couleur du rendu");
 			
-		if (SDL_RenderDrawLines(renderer, bord, 4) != 0)
+		if (SDL_RenderDrawLines(renderer, bord, 5) != 0)
 			SDL_ExitWithError("Impossible de dessiner un rectangle");
 		
 		
-//------------Régénérer l'affichage de la matrice du terrain------------
+//------------Affichage des objets--------------------------------------
 
-		for (int i = 0; i < LARGEUR_TERRAIN; i ++)
-			for (int j = 0; j < HAUTEUR_TERRAIN; j ++)
-				AfficherTerrain(renderer, i, j, terrain[i][j]);
+		AfficherCadeau(renderer, &rect_cadeau, cadeau);
+		AfficherLombric(renderer, &rect_cadeau, lombric->tete);
+		if (SDL_GetTicks() - anim_niveau < 1000)
+			EcrireTexte(renderer, "Nv++", font, lombric->tete->x, lombric->tete->y - TUILE, 50, 60, JAUNE);	
 
 //------------Affichage des informations--------------------------------				
 
-		sprintf(temps, " %5d s", maintenant);
+		sprintf(temps, "%02d : %02d", maintenant / 60, maintenant % 60);
 		EcrireTexte(renderer, temps, font, LARGEUR_FENETRE - 80, HAUTEUR_FENETRE - 25, 70, 25, BLANC);
 		
 		sprintf(score, "%5d", lombric->point);
-		EcrireTexte(renderer, score, font, LARGEUR_FENETRE - 195, 40, 150, 100, BLANC);
+		EcrireTexte(renderer, score, font, LARGEUR_FENETRE - 205, 40, 150, 100, BLANC);
 		
 		sprintf(record, "%5d", record_temp);
-		EcrireTexte(renderer, record, font, LARGEUR_FENETRE - 40, 95, 36, 25, GRIS);
+		EcrireTexte(renderer, record, font, LARGEUR_FENETRE - 50, 95, 48, 25, GRIS);
+		
+		if (SDL_RenderCopy(renderer, textureimage, NULL, &rect_image) != 0) // copier dans le rendu l'image en memoire
+			SDL_ExitWithError("Impossible d'afficher la texture");			
 		
 		AfficherCommandes(renderer, font);
 		
@@ -157,6 +178,8 @@ int main(int argc, char *argv[])
 		if (lombric->pas > 0)
 			lombric->pas -= lombric->vitesse;
 			
+		VieillirLombric(lombric->tete);
+		
 		lombric->longueur = LongueurLombric(lombric->tete);
 		
 		maintenant = (SDL_GetTicks() - debut) / 1000;
@@ -165,20 +188,22 @@ int main(int argc, char *argv[])
 		
 		Bouger(lombric);
 		
-		if (CollisionTeteCadeau(lombric->tete, terrain) == VRAI)
+		if (CollisionCadeau(cadeau, lombric->tete->x, lombric->tete->y) == VRAI)
 		{
-			lombric->evm = GestionCadeau(terrain, lombric->tete, cadeau);
+			lombric->evm = GestionCadeau(cadeau, cadeau, lombric->tete);
 			lombric->point += lombric->longueur / TUILE / 2 + 1;
 		}
 		
-		DiminuerCompteur(cadeau, terrain);
+		DiminuerCompteur(cadeau, cadeau, lombric->tete);
 			
 		if ((CollisionTeteMur(lombric->tete) == VRAI) || 
-			(CollisionTeteLombric(lombric->tete, terrain) == VRAI))
+			(CollisionLombric(lombric->tete, lombric->tete->x, lombric->tete->y, VRAI) == VRAI))
 		{
 			AfficherPerdu(renderer, font);
 			SDL_RenderPresent(renderer);
 			bouton = Attendre();
+			if (bouton == PAUSE)
+				bouton = COMMENCER;
 			if (bouton == FERMERFENETRE)
 				program_launched = SDL_FALSE;
 		}
@@ -204,8 +229,6 @@ int main(int argc, char *argv[])
 	LibererAnneaux(lombric->tete);
 	free(lombric);
 	lombric = NULL;
-	free(terrain);
-	terrain = NULL;	
 	TTF_CloseFont(font);
 	TTF_Quit();	
 	SDL_DestroyRenderer(renderer);
