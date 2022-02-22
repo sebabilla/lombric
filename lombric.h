@@ -2,10 +2,10 @@
 #define __LOMBRIC__H__
 
 #define TITRE "Lombric en C"
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
-#define TERRAIN_WIDTH 600
-#define TERRAIN_HEIGHT 600
+#define LARGEUR_FENETRE 800
+#define HAUTEUR_FENETRE 600
+#define LARGEUR_TERRAIN 600
+#define HAUTEUR_TERRAIN 600
 #define TEMPSCADEAU 300
 #define FPS 16
 #define TUILE 20
@@ -56,15 +56,6 @@ typedef struct Lombric
 	Anneau *tete;
 } Lombric;
 
-typedef struct Cadeau
-{
-	int x;
-	int y;
-	Evenement evm[3];
-	int compteur;
-	struct Cadeau *suivant;
-} Cadeau;
-
 Evenement **NouveauTerrain(void); // d'après www.geeksforgeeks.org/dynamically-allocate-2d-array-c/
 void NettoyerTerrain(Evenement **t);
 
@@ -82,13 +73,5 @@ Bool CollisionTeteLombric(Anneau *a, Evenement **t);
 Bool CollisionTeteCadeau(Anneau *a, Evenement **t);
 int LongueurLombric(Anneau *a);
 Bool NiveauSupplementaire(Lombric *l);
-
-Cadeau *NouveauCadeau(Evenement **t);
-void ResetCadeau(Cadeau *c, Evenement **t);
-void CadeauSupplementaire(Cadeau *c, Evenement **t);
-void InsererCadeau(Evenement **t, Cadeau *c);
-Evenement GestionCadeau(Evenement **t, Anneau *a, Cadeau *c1);
-void DiminuerCompteur(Cadeau *c, Evenement **t);
-void LibererCadeaux(Cadeau *c);
 
 #endif

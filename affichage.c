@@ -108,43 +108,43 @@ void EcrireTexte(SDL_Renderer *r, char *texte, TTF_Font *f, int X, int Y, int W,
 
 void AfficherPause(SDL_Renderer *r, TTF_Font *f)
 {
-	EcrireTexte(r, "PAUSE", f, TERRAIN_HEIGHT / 2 - 75, TERRAIN_WIDTH / 2 - 50, 150, 100, JAUNE);
+	EcrireTexte(r, "PAUSE", f, HAUTEUR_TERRAIN / 2 - 75, LARGEUR_TERRAIN / 2 - 50, 150, 100, JAUNE);
 }
 
 void AfficherPerdu(SDL_Renderer *r, TTF_Font *f)
 {
-	EcrireTexte(r, "PERDU", f, TERRAIN_HEIGHT / 2 - 75, TERRAIN_WIDTH / 2 - 50, 150, 100, JAUNE);
+	EcrireTexte(r, "PERDU", f, HAUTEUR_TERRAIN / 2 - 75, LARGEUR_TERRAIN / 2 - 50, 150, 100, JAUNE);
 }
 
 void AfficherCommandes(SDL_Renderer *r, TTF_Font *f)
 {
-	EcrireTexte(r, "Espace", f, WINDOW_WIDTH - 190, WINDOW_HEIGHT - 125, 50, 25, GRIS);
-	EcrireTexte(r, "PAUSE", f, WINDOW_WIDTH - 125, WINDOW_HEIGHT - 125, 50, 25, GRIS);
-	EcrireTexte(r, "Entrée", f, WINDOW_WIDTH - 190, WINDOW_HEIGHT - 100, 50, 25, GRIS);
-	EcrireTexte(r, "RECOMMENCER", f, WINDOW_WIDTH - 125, WINDOW_HEIGHT - 100, 110, 25, GRIS);
-	EcrireTexte(r, "Echap", f, WINDOW_WIDTH - 190, WINDOW_HEIGHT - 75, 50, 25, GRIS);
-	EcrireTexte(r, "QUITTER", f, WINDOW_WIDTH - 125, WINDOW_HEIGHT - 75, 62, 25, GRIS);
+	EcrireTexte(r, "Espace", f, LARGEUR_FENETRE - 190, HAUTEUR_FENETRE - 125, 50, 25, GRIS);
+	EcrireTexte(r, "PAUSE", f, LARGEUR_FENETRE - 125, HAUTEUR_FENETRE - 125, 50, 25, GRIS);
+	EcrireTexte(r, "Entrée", f, LARGEUR_FENETRE - 190, HAUTEUR_FENETRE - 100, 50, 25, GRIS);
+	EcrireTexte(r, "RECOMMENCER", f, LARGEUR_FENETRE - 125, HAUTEUR_FENETRE - 100, 110, 25, GRIS);
+	EcrireTexte(r, "Echap", f, LARGEUR_FENETRE - 190, HAUTEUR_FENETRE - 75, 50, 25, GRIS);
+	EcrireTexte(r, "QUITTER", f, LARGEUR_FENETRE - 125, HAUTEUR_FENETRE - 75, 62, 25, GRIS);
 }
 
 void AfficherLegende(SDL_Renderer *r, TTF_Font *f)
 {
-	EcrireTexte(r, "Feuilles d'automne", f, WINDOW_WIDTH - 170, WINDOW_HEIGHT - 250, 170, 25, BLANC);
-	EcrireTexte(r, "Exsudats racinaires", f, WINDOW_WIDTH - 170, WINDOW_HEIGHT - 225, 170, 25, BLANC);
-	EcrireTexte(r, "Pesticides", f, WINDOW_WIDTH - 170, WINDOW_HEIGHT - 200, 80, 25, BLANC);
+	EcrireTexte(r, "Feuilles d'automne", f, LARGEUR_FENETRE - 170, HAUTEUR_FENETRE - 250, 170, 25, BLANC);
+	EcrireTexte(r, "Exsudats racinaires", f, LARGEUR_FENETRE - 170, HAUTEUR_FENETRE - 225, 170, 25, BLANC);
+	EcrireTexte(r, "Pesticides", f, LARGEUR_FENETRE - 170, HAUTEUR_FENETRE - 200, 80, 25, BLANC);
 
-	SDL_Rect Rouge = {.x = WINDOW_WIDTH - 195, .y = WINDOW_HEIGHT - 250, .w = TUILE, .h = TUILE};
+	SDL_Rect Rouge = {.x = LARGEUR_FENETRE - 195, .y = HAUTEUR_FENETRE - 250, .w = TUILE, .h = TUILE};
 	if (SDL_SetRenderDrawColor(r, 255, 0, 0, SDL_ALPHA_TRANSPARENT) != 0)
 		SDL_ExitWithError("Impossible de changer la couleur du rendu");
 	if (SDL_RenderFillRect(r, &Rouge) != 0)
 			SDL_ExitWithError("Impossible de dessiner un rectangle");
 	
-	SDL_Rect Bleu = {.x = WINDOW_WIDTH - 195, .y = WINDOW_HEIGHT - 225, .w = TUILE, .h = TUILE};
+	SDL_Rect Bleu = {.x = LARGEUR_FENETRE - 195, .y = HAUTEUR_FENETRE - 225, .w = TUILE, .h = TUILE};
 	if (SDL_SetRenderDrawColor(r, 30, 144, 255, SDL_ALPHA_TRANSPARENT) != 0)
 		SDL_ExitWithError("Impossible de changer la couleur du rendu");
 	if (SDL_RenderFillRect(r, &Bleu) != 0)
 			SDL_ExitWithError("Impossible de dessiner un rectangle");
 	
-	SDL_Rect Vert = {.x = WINDOW_WIDTH - 195, .y = WINDOW_HEIGHT - 200, .w = TUILE, .h = TUILE};
+	SDL_Rect Vert = {.x = LARGEUR_FENETRE - 195, .y = HAUTEUR_FENETRE - 200, .w = TUILE, .h = TUILE};
 	if (SDL_SetRenderDrawColor(r, 0, 255, 0, SDL_ALPHA_TRANSPARENT) != 0)
 		SDL_ExitWithError("Impossible de changer la couleur du rendu");
 	if (SDL_RenderFillRect(r, &Vert) != 0)

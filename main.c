@@ -5,6 +5,7 @@
 #include <SDL_ttf.h>
 
 #include "lombric.h"
+#include "cadeau.h"
 #include "affichage.h"
 #include "controle.h"
 
@@ -17,7 +18,7 @@ int main(int argc, char *argv[])
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		SDL_ExitWithError("Initiation SDL");
 		
-	if (SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, 0, &window, &renderer))
+	if (SDL_CreateWindowAndRenderer(LARGEUR_FENETRE, HAUTEUR_FENETRE, 0, &window, &renderer))
 		SDL_ExitWithError("Impossible de creer la fenetre et le rendu");
 	SDL_SetWindowTitle(window, TITRE);
 
@@ -36,9 +37,8 @@ int main(int argc, char *argv[])
 	if (SDL_Init(SDL_INIT_JOYSTICK) != 0)
 		SDL_ExitWithError("Initiation SDL");
 	
-	SDL_Joystick *joy;
 	if (SDL_NumJoysticks() > 0)
-		joy=SDL_JoystickOpen(0);
+		SDL_JoystickOpen(0);
 	else
 		printf("Pas de joystick\n");
 		
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 	Lombric *lombric = NouveauLombric();
 	Cadeau *cadeau = NULL;
 	
-	SDL_Rect rect_info = {.x = WINDOW_WIDTH - 200, .y = 0, .w = 200, .h = WINDOW_HEIGHT};
+	SDL_Rect rect_info = {.x = LARGEUR_FENETRE - 200, .y = 0, .w = 200, .h = HAUTEUR_FENETRE};
 	
 	char score[10];
 	char record[10];
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 		if (NiveauSupplementaire(lombric) == VRAI)
 		{
 			if (cadeau == NULL)
-				cadeau = NouveauCadeau(terrain);
+				cadeau = NouveauCadeau(terrain); // Placé ici pour ne pas avoir de cadeau sur le lombric... fonctionne mieux, mais encore quelques fails...
 			else
 				CadeauSupplementaire(cadeau, terrain);
 		}
@@ -97,20 +97,20 @@ int main(int argc, char *argv[])
 		
 //------------Régénérer l'affichage de la matrice du terrain------------
 
-		for (int i = 0; i < TERRAIN_WIDTH; i ++)
-			for (int j = 0; j < TERRAIN_HEIGHT; j ++)
+		for (int i = 0; i < LARGEUR_TERRAIN; i ++)
+			for (int j = 0; j < HAUTEUR_TERRAIN; j ++)
 				AfficherTerrain(renderer, i, j, terrain[i][j]);
 
 //------------Affichage des informations--------------------------------				
 
 		sprintf(temps, " %5d s", maintenant);
-		EcrireTexte(renderer, temps, font, WINDOW_WIDTH - 80, WINDOW_HEIGHT - 25, 70, 25, BLANC);
+		EcrireTexte(renderer, temps, font, LARGEUR_FENETRE - 80, HAUTEUR_FENETRE - 25, 70, 25, BLANC);
 		
 		sprintf(score, "%5d", lombric->point);
-		EcrireTexte(renderer, score, font, WINDOW_WIDTH - 195, 40, 150, 100, BLANC);
+		EcrireTexte(renderer, score, font, LARGEUR_FENETRE - 195, 40, 150, 100, BLANC);
 		
 		sprintf(record, "%5d", record_temp);
-		EcrireTexte(renderer, record, font, WINDOW_WIDTH - 40, 95, 36, 25, GRIS);
+		EcrireTexte(renderer, record, font, LARGEUR_FENETRE - 40, 95, 36, 25, GRIS);
 		
 		AfficherCommandes(renderer, font);
 		
@@ -193,7 +193,9 @@ int main(int argc, char *argv[])
 	LibererCadeaux(cadeau);
 	LibererAnneaux(lombric->tete);
 	free(lombric);
-	free(terrain);	
+	lombric = NULL;
+	free(terrain);
+	terrain = NULL;	
 	TTF_CloseFont(font);
 	TTF_Quit();	
 	SDL_DestroyRenderer(renderer);

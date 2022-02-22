@@ -4,7 +4,7 @@
 
 Evenement **NouveauTerrain(void) 
 {
-	Evenement **t = (Evenement**)malloc(sizeof(Evenement *) * TERRAIN_HEIGHT + sizeof(Evenement) * TERRAIN_WIDTH * TERRAIN_HEIGHT);
+	Evenement **t = (Evenement**)malloc(sizeof(Evenement *) * HAUTEUR_TERRAIN + sizeof(Evenement) * LARGEUR_TERRAIN * HAUTEUR_TERRAIN);
 	if (t == NULL)
 	{
 		free(t);
@@ -12,9 +12,9 @@ Evenement **NouveauTerrain(void)
 		return NULL;
 	}
 	
-	Evenement *ptr = (Evenement *)(t + TERRAIN_HEIGHT);
-	for(int i = 0; i < TERRAIN_HEIGHT; i++)
-        t[i] = (ptr + TERRAIN_WIDTH * i);
+	Evenement *ptr = (Evenement *)(t + HAUTEUR_TERRAIN);
+	for(int i = 0; i < HAUTEUR_TERRAIN; i++)
+        t[i] = (ptr + LARGEUR_TERRAIN * i);
 	
 	NettoyerTerrain(t);
 
@@ -23,23 +23,23 @@ Evenement **NouveauTerrain(void)
 
 void NettoyerTerrain(Evenement **t)
 {
-	for (int i = TUILE; i < TERRAIN_WIDTH - TUILE; i++)
-		for (int j = TUILE; j < TERRAIN_HEIGHT - TUILE; j++)
+	for (int i = TUILE; i < LARGEUR_TERRAIN - TUILE; i++)
+		for (int j = TUILE; j < HAUTEUR_TERRAIN - TUILE; j++)
 			t[i][j] = RIEN;
 	
-	for (int i = 0; i < TERRAIN_WIDTH; i++)
+	for (int i = 0; i < LARGEUR_TERRAIN; i++)
 		for (int j = 0; j < TUILE; j++)
 		{
 	
 			t[i][j] = BORD;
-			t[i][TERRAIN_HEIGHT - TUILE + j] = BORD;
+			t[i][HAUTEUR_TERRAIN - TUILE + j] = BORD;
 		}
-	for (int j = 0; j < TERRAIN_HEIGHT; j++)
+	for (int j = 0; j < HAUTEUR_TERRAIN; j++)
 		for (int i = 0; i < TUILE; i++)
 		{
 	
 			t[i][j] = BORD;
-			t[TERRAIN_WIDTH - TUILE + i][j] = BORD;
+			t[LARGEUR_TERRAIN - TUILE + i][j] = BORD;
 		}
 }
 
@@ -53,8 +53,8 @@ Lombric *NouveauLombric(void)
 		return NULL;
 	}
 	
-	a->x = TERRAIN_WIDTH / 2;
-	a->y = TERRAIN_HEIGHT / 2;
+	a->x = LARGEUR_TERRAIN / 2;
+	a->y = HAUTEUR_TERRAIN / 2;
 	a->age = 0;
 	a->dir = GAUCHE;
 	a->evm = LOMBRIC;
@@ -187,6 +187,7 @@ void LibererAnneaux(Anneau *a)
 		LibererAnneaux(a->suivant);
 		
 	free(a);
+	a = NULL;
 }
 
 Lombric *NouvelleTete(Lombric *l)
@@ -329,11 +330,11 @@ Bool CollisionTeteMur(Anneau *a)
 {
 	if (a->x < TUILE)
 		return VRAI;
-	if (a->x > TERRAIN_WIDTH - TUILE)
+	if (a->x > LARGEUR_TERRAIN - TUILE)
 		return VRAI;
 	if (a->y < TUILE)
 		return VRAI;
-	if (a->y > TERRAIN_HEIGHT - TUILE)
+	if (a->y > HAUTEUR_TERRAIN - TUILE)
 		return VRAI;
 	return FAUX;
 }
@@ -418,127 +419,4 @@ Bool NiveauSupplementaire(Lombric *l)
 	}
 		
 	return FAUX;
-}
-
-Cadeau *NouveauCadeau(Evenement **t)
-{
-	Cadeau *c = malloc(sizeof(Cadeau));
-	if (c == NULL)
-	{
-		free(c);
-		printf("Erreur d'allocation mémoire\n");
-		return NULL;
-	}
-	
-	c->suivant = NULL;
-	ResetCadeau(c, t);
-	
-	return c;
-}
-
-void ResetCadeau(Cadeau *c, Evenement **t)
-{
-	int x, y;
-	Evenement test = LOMBRIC;
-	while (test != RIEN)
-	{
-		x = (rand() % ((TERRAIN_WIDTH - 2 * TUILE) / TUILE)) * TUILE + TUILE + 1;
-		y = (rand() % ((TERRAIN_HEIGHT - 2 * TUILE) / TUILE)) * TUILE + TUILE + 1;
-		for (int i = 0; i < TUILE; i++)
-		{
-			for (int j = 0; j < TUILE; j++)
-			{
-				test = t[x + i][y + j];
-				if (test != RIEN)
-					break;
-			}
-			if (test != RIEN)
-				break;
-		}
-	}
-
-	c->x = x;
-	c->y = y;
-	
-	int choix = rand() % 10;
-	if (choix < 6) 
-	{ 
-		c->evm[0] = MO;
-		c->evm[1] = MODISP;
-		c->evm[2] = MODISPARITION;
-	}
-	else if (choix < 9)
-	{
-		c->evm[0] = VITPLUS;
-		c->evm[1] = VITPLUSDISP;
-		c->evm[2] = VITPLUSDISPARITION;
-	}
-	else
-	{
-		c->evm[0] = VITMOINS;
-		c->evm[1] = VITMOINSDISP;
-		c->evm[2] = VITMOINSDISPARITION;
-	}
-	
-	c->compteur = TEMPSCADEAU;
-}
-
-void CadeauSupplementaire(Cadeau *c, Evenement **t)
-{
-	if (c->suivant != NULL)
-	{
-		CadeauSupplementaire(c->suivant, t);
-	}
-	if (c->suivant == NULL)	
-		c->suivant = NouveauCadeau(t);		
-}
-
-void InsererCadeau(Evenement **t, Cadeau *c)
-{
-	for (int i = 0; i < TUILE; i++)
-		for (int j = 0; j < TUILE; j++)
-		{
-			if (c->compteur > TEMPSCADEAU / 2)
-				t[(c->x) + i][(c->y) + j] = c->evm[0];
-			else if (c->compteur < TEMPSCADEAU / 5)
-				t[(c->x) + i][(c->y) + j] = c->evm[2];
-			else
-				t[(c->x) + i][(c->y) + j] = c->evm[1];
-		}
-	
-	if (c->suivant != NULL)
-		InsererCadeau(t, c->suivant);
-		
-}
-
-Evenement GestionCadeau(Evenement **t, Anneau *a, Cadeau *c)
-{	
-	Evenement tmp;
-	if (abs(a->x - c->x) < TUILE / 2 + TUILE && abs(a->y - c->y) < TUILE / 2 + TUILE)
-	{
-		tmp = c->evm[0];
-		ResetCadeau(c, t);
-		return tmp;		
-	}
-	
-	return GestionCadeau(t, a, c->suivant);	
-}
-
-void DiminuerCompteur(Cadeau *c, Evenement **t)
-{
-	if(c->suivant != NULL)
-		DiminuerCompteur(c->suivant, t);
-		
-	c->compteur--;
-	if (c->compteur <= 0)
-		ResetCadeau(c, t);
-}
-
-void LibererCadeaux(Cadeau *c)
-{
-	if(c->suivant != NULL)
-		LibererCadeaux(c->suivant);
-		
-	free(c);
-	c = NULL;
 }
