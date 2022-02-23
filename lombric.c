@@ -2,7 +2,31 @@
 #include <stdlib.h>
 #include "lombric.h"
 
-Lombric *NouveauLombric(void)
+Bool VerificationSauvegarde(const char *s)
+{
+	FILE *sauvegarde;
+	if ((sauvegarde = fopen(s, "r")))
+	{
+		printf("Sauvegarde trouvee\n");
+		fclose(sauvegarde);
+		return VRAI;
+	}
+		
+	sauvegarde = fopen(s, "w");
+	if (sauvegarde == NULL)
+	{
+		printf("impossible de creer une sauvegarde\n");
+		exit(EXIT_FAILURE);
+	}
+	fprintf(sauvegarde, "%d\n", 0);
+	fprintf(sauvegarde, "%d\n", 0);
+	fprintf(sauvegarde, "%d\n", 0);
+	printf("sauvegarde creee\n");
+	fclose(sauvegarde);
+	return VRAI;
+}
+
+Lombric *NouveauLombric()
 {
 	Anneau *a = malloc(sizeof(Anneau));
 	if (a == NULL)
@@ -34,6 +58,7 @@ Lombric *NouveauLombric(void)
 	l->longueur = 0;
 	l->point = 0;
 	l->niveau = 0;
+	l->maintenant = 0;
 	l->tete = a;
 
 	for (int i = 0; i < (2 * TUILE); i++)
@@ -316,6 +341,10 @@ Bool NiveauSupplementaire(Lombric *l)
 			if (l->point >= 10000)
 				sup = VRAI;
 			break;
+		case 8:
+			if (l->point >= 50000)
+				sup = VRAI;
+			break;
 		default:
 			break;		
 	}
@@ -335,4 +364,14 @@ void VieillirLombric(Anneau *a)
 	
 	if (a->suivant != NULL)
 		VieillirLombric(a->suivant);
+}
+
+void MiseAJourRecords(Lombric *l, Records *rt)
+{
+	if (rt->points < l->point)
+		rt->points = l->point;
+	if (rt->niveau < l->niveau)
+		rt->niveau = l->niveau;
+	if (rt->temps < l->maintenant)
+		rt->temps = l->maintenant;
 }

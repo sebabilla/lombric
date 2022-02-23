@@ -12,7 +12,34 @@
 
 int main(int argc, char *argv[])
 {
+
+	SDL_bool program_launched = SDL_TRUE;
+
+//------------------Chargement Sauvegarde-------------------------------	
+	
+	Records *records_temp = malloc(sizeof(Records));
+	if (records_temp == NULL)
+	{
+		free(records_temp);
+		printf("Erreur d'allocation mémoire\n");
+		exit(EXIT_FAILURE);		
+	}
+	if (VerificationSauvegarde("sauvegarde.txt") == VRAI)
+	{
+		FILE *sauvegarde = fopen("sauvegarde.txt", "r");
+		fscanf(sauvegarde, "%d", &records_temp->points);
+		fscanf(sauvegarde, "%d", &records_temp->niveau);
+		fscanf(sauvegarde, "%d", &records_temp->temps);
+		fclose(sauvegarde);
+	}
+	else
+	{
+		printf("Impossible de creer une sauvegarde");
+		exit(EXIT_FAILURE);
+	}
+
 //------------------Création d'une fenêtre et de son rendu--------------
+	
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 	
@@ -58,7 +85,6 @@ int main(int argc, char *argv[])
 		
 //------------------Définition des compteurs et objets------------------
 	
-	SDL_bool program_launched = SDL_TRUE;
 	srand(time(NULL)); // pour avoir un premier tirage differant à chaque jeu.
 
 	unsigned int frame_limit = 0;
@@ -66,6 +92,7 @@ int main(int argc, char *argv[])
 	Direction bouton = SANS;
 
 	Lombric *lombric = NouveauLombric();
+	
 	Cadeau *cadeau = NULL;
 	
 	SDL_Rect fond_fenetre = {.x = 0, .y = 0, .w = LARGEUR_FENETRE, .h = HAUTEUR_FENETRE};
@@ -79,10 +106,10 @@ int main(int argc, char *argv[])
 	char score[10];
 	char record[10];
 	char temps[10];
-	int record_temp = 0;
 	int debut = SDL_GetTicks();
-	int maintenant = SDL_GetTicks();
+	int pause_maintenant;
 	int anim_niveau = 0;
+	int felicitations = 0;
 	
 //------------Lancement du jeu, en boucle infinie-----------------------
 	
@@ -131,13 +158,13 @@ int main(int argc, char *argv[])
 
 //------------Affichage des informations--------------------------------				
 
-		sprintf(temps, "%02d : %02d", maintenant / 60, maintenant % 60);
+		sprintf(temps, "%02d : %02d", lombric->maintenant / 60, lombric->maintenant % 60);
 		EcrireTexte(renderer, temps, font, LARGEUR_FENETRE - 80, HAUTEUR_FENETRE - 25, 70, 25, BLANC);
 		
 		sprintf(score, "%5d", lombric->point);
 		EcrireTexte(renderer, score, font, LARGEUR_FENETRE - 205, 40, 150, 100, BLANC);
 		
-		sprintf(record, "%5d", record_temp);
+		sprintf(record, "%5d", records_temp->points);
 		EcrireTexte(renderer, record, font, LARGEUR_FENETRE - 50, 95, 48, 25, GRIS);
 		
 		if (SDL_RenderCopy(renderer, textureimage, NULL, &rect_image) != 0) // copier dans le rendu l'image en memoire
@@ -161,11 +188,12 @@ int main(int argc, char *argv[])
 		
 		if (bouton == PAUSE)
 		{
-			maintenant = SDL_GetTicks();
+			pause_maintenant = SDL_GetTicks();
 			AfficherPause(renderer, font);
+			AfficherRecords(renderer, font, records_temp);
 			SDL_RenderPresent(renderer);
 			bouton = Attendre();
-			debut += SDL_GetTicks() - maintenant;
+			debut += SDL_GetTicks() - pause_maintenant;
 		}
 		
 		if (bouton == FERMERFENETRE)
@@ -182,7 +210,20 @@ int main(int argc, char *argv[])
 		
 		lombric->longueur = LongueurLombric(lombric->tete);
 		
-		maintenant = (SDL_GetTicks() - debut) / 1000;
+		lombric->maintenant = (SDL_GetTicks() - debut) / 1000;
+		
+		MiseAJourRecords(lombric, records_temp);
+		
+		if (lombric->niveau == 8 && felicitations == 0)
+			{
+				pause_maintenant = SDL_GetTicks();
+				felicitations = 1;
+				AfficherFelecitations(renderer, font);
+				AfficherRecords(renderer, font, records_temp);
+				SDL_RenderPresent(renderer);
+				bouton = Attendre();
+				debut += SDL_GetTicks() - pause_maintenant;
+			}
 
 //------------Nouvelle position entraine-t'elle une collision ?---------		
 		
@@ -200,6 +241,7 @@ int main(int argc, char *argv[])
 			(CollisionLombric(lombric->tete, lombric->tete->x, lombric->tete->y, VRAI) == VRAI))
 		{
 			AfficherPerdu(renderer, font);
+			AfficherRecords(renderer, font, records_temp);
 			SDL_RenderPresent(renderer);
 			bouton = Attendre();
 			if (bouton == PAUSE)
@@ -210,8 +252,6 @@ int main(int argc, char *argv[])
 				
 		if (bouton == COMMENCER)
 		{
-			if (record_temp < lombric->point)
-				record_temp = lombric->point;
 			LibererAnneaux(lombric->tete);
 			free(lombric);
 			lombric = NouveauLombric();
@@ -222,13 +262,23 @@ int main(int argc, char *argv[])
 		}
 		
 	}
+	
+//------------------Sauvegarder les records ----------------------------
+
+	FILE *sauvegarde = fopen("sauvegarde.txt", "w");
+	fprintf(sauvegarde, "%d\n", records_temp->points);
+	fprintf(sauvegarde, "%d\n", records_temp->niveau);
+	fprintf(sauvegarde, "%d\n", records_temp->temps);
+	printf("sauvegarde mise a jour\n");
+	fclose(sauvegarde);
+
 
 //------------Sortie de la boucle, on nettoie tout----------------------
 	
 	LibererCadeaux(cadeau);
 	LibererAnneaux(lombric->tete);
 	free(lombric);
-	lombric = NULL;
+	free(records_temp);	
 	TTF_CloseFont(font);
 	TTF_Quit();	
 	SDL_DestroyRenderer(renderer);

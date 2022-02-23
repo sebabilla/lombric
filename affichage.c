@@ -148,12 +148,19 @@ void EcrireTexte(SDL_Renderer *r, char *texte, TTF_Font *f, int X, int Y, int W,
 
 void AfficherPause(SDL_Renderer *r, TTF_Font *f)
 {
-	EcrireTexte(r, "PAUSE", f, HAUTEUR_TERRAIN / 2 - 75, LARGEUR_TERRAIN / 2 - 50, 150, 100, JAUNE);
+	EcrireTexte(r, "PAUSE", f, SHIFT + LARGEUR_TERRAIN / 2 - 75, SHIFT + HAUTEUR_TERRAIN / 2 - 50, 150, 100, JAUNE);
 }
 
 void AfficherPerdu(SDL_Renderer *r, TTF_Font *f)
 {
-	EcrireTexte(r, "PERDU", f, HAUTEUR_TERRAIN / 2 - 75, LARGEUR_TERRAIN / 2 - 50, 150, 100, JAUNE);
+	EcrireTexte(r, "PERDU", f, SHIFT + LARGEUR_TERRAIN / 2 - 75, SHIFT + HAUTEUR_TERRAIN / 2 - 50, 150, 100, JAUNE);
+}
+
+void AfficherFelecitations(SDL_Renderer *r, TTF_Font *f)
+{
+	EcrireTexte(r, "Niveau 8! FELICITATIONS!", f, SHIFT + LARGEUR_TERRAIN / 2 - 250, SHIFT + HAUTEUR_TERRAIN / 2 - 50, 500, 100, JAUNE);
+	EcrireTexte(r, "Je pensais cela impossible! ... 'Echap' pour aller encore plus loin!", f, SHIFT + LARGEUR_TERRAIN / 2 - 350, SHIFT + HAUTEUR_TERRAIN / 2 + 50, 700, 50, JAUNE);
+	
 }
 
 void AfficherCommandes(SDL_Renderer *r, TTF_Font *f)
@@ -193,5 +200,22 @@ void AfficherLegende(SDL_Renderer *r, TTF_Font *f)
 	EcrireTexte(r, "Feuilles d'automne", f, LARGEUR_FENETRE - 190, HAUTEUR_FENETRE - 260, 170, 25, BLANC);
 	EcrireTexte(r, "Exsudats racinaires", f, LARGEUR_FENETRE - 190, HAUTEUR_FENETRE - 230, 180, 25, BLANC);
 	EcrireTexte(r, "Pesticides", f, LARGEUR_FENETRE - 190, HAUTEUR_FENETRE - 200, 95, 25, BLANC);
+}
+
+void AfficherRecords(SDL_Renderer *r, TTF_Font *f, Records *rt)
+{
+	char record_pts[20];
+	char record_nv[20];
+	char record_t[20];
+	sprintf(record_pts, "%05d points", rt->points);
+	sprintf(record_nv, "niveau %d sur 8", rt->niveau);
+	sprintf(record_t, "%02dh %02dm %02ds", rt->temps / 3600, (rt->temps % 3600) / 60, (rt->temps % 3600) % 60);
+	
+	EcrireTexte(r, "RECORDS", f, LARGEUR_TERRAIN / 2 + SHIFT - 40, HAUTEUR_FENETRE - 260, 80, 25, BLANC);
+	EcrireTexte(r, record_pts, f, LARGEUR_TERRAIN / 2 + SHIFT - 60, HAUTEUR_FENETRE - 230, 120, 25, BLANC);
+	EcrireTexte(r, record_nv, f, LARGEUR_TERRAIN / 2 + SHIFT - 65, HAUTEUR_FENETRE - 200, 130, 25, BLANC);
+	EcrireTexte(r, record_t, f, LARGEUR_TERRAIN / 2 + SHIFT - 55, HAUTEUR_FENETRE - 170, 110, 25, BLANC);
+	
+	EcrireTexte(r, "Par Sébastien Abilla, Licence MIT", f, LARGEUR_TERRAIN + SHIFT - 260, HAUTEUR_FENETRE - SHIFT - 20, 260, 20, GRIS);
 }
 

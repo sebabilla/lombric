@@ -46,6 +46,13 @@ typedef struct Anneau
 	struct Anneau *suivant;
 } Anneau;
 
+typedef struct Records
+{
+	int points;
+	int niveau;
+	int temps;
+} Records;
+
 typedef struct Lombric
 {
 	Evenement evm;
@@ -54,6 +61,7 @@ typedef struct Lombric
 	int longueur;
 	int point;
 	int niveau;
+	int maintenant;
 	Anneau *tete;
 } Lombric;
 
@@ -65,6 +73,8 @@ typedef struct Cadeau
 	int compteur;
 	struct Cadeau *suivant;
 } Cadeau;
+
+Bool VerificationSauvegarde(const char *s);
 
 Lombric *NouveauLombric(void);
 Anneau *AjouterQueue(Anneau *a, Bool nouveau);
@@ -78,5 +88,6 @@ Bool CollisionLombric(Anneau *a, int x, int y, Bool vieux);
 int LongueurLombric(Anneau *a);
 Bool NiveauSupplementaire(Lombric *l);
 void VieillirLombric(Anneau *a);
+void MiseAJourRecords(Lombric *l, Records *rt);
 
 #endif
