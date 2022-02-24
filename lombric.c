@@ -295,13 +295,10 @@ Bool CollisionLombric(Anneau *a, int x, int y, Bool vieux)
 
 int LongueurLombric(Anneau *a)
 {
-	int conteur = 0;
-	while (a->suivant != 0)
-	{
-		conteur++;
-		a = a->suivant;
-	}
-	return conteur;
+	if (a->suivant == NULL)
+		return 1;
+		
+	return 	1 + LongueurLombric(a->suivant);
 }
 
 Bool NiveauSupplementaire(Lombric *l)
