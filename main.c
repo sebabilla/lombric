@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
 		fscanf(sauvegarde, "%d", &records_temp->points);
 		fscanf(sauvegarde, "%d", &records_temp->niveau);
 		fscanf(sauvegarde, "%d", &records_temp->temps);
+		fscanf(sauvegarde, "%d", &records_temp->longueur);
 		fclose(sauvegarde);
 	}
 	else
@@ -93,6 +94,7 @@ int main(int argc, char *argv[])
 	Direction bouton = SANS;
 
 	Lombric *lombric = NouveauLombric();
+	Lombric *lombric_affiche = NouveauLombric();
 	
 	Cadeau *cadeau = NULL;
 	
@@ -111,6 +113,7 @@ int main(int argc, char *argv[])
 	int pause_maintenant;
 	int anim_niveau = 0;
 	int felicitations = 0;
+	int mv = 1;
 	
 //------------Lancement du jeu, en boucle infinie-----------------------
 	
@@ -159,7 +162,16 @@ int main(int argc, char *argv[])
 		if (partie == ENCOURS)
 		{
 			ChangerDirection(bouton, lombric);
-			Bouger(lombric);
+			if (mv == TUILE - lombric->vitesse)
+			{
+				Bouger(lombric);
+				CopieLombric(lombric, lombric_affiche);
+				mv = 1;
+			}
+			else
+				faux_mouvement(lombric_affiche->tete, lombric->vitesse);
+			
+			mv++;
 				
 //------------Level up ?------------------------------------------------
 
@@ -182,11 +194,9 @@ int main(int argc, char *argv[])
 			if (CollisionCadeau(cadeau, lombric->tete->x, lombric->tete->y) == VRAI)
 			{
 				lombric->evm = GestionCadeau(cadeau, cadeau, lombric->tete);
-				lombric->point += lombric->longueur / TUILE / 2 + 1;
+				lombric->point += lombric->longueur;
 			}
-			
-			
-			
+						
 			if ((CollisionTeteMur(lombric->tete) == VRAI) || 
 				(CollisionLombric(lombric->tete, lombric->tete->x, lombric->tete->y, VRAI) == VRAI))
 				partie = PERDU;
@@ -201,13 +211,8 @@ int main(int argc, char *argv[])
 				pause_maintenant = SDL_GetTicks();
 				partie = VICTOIRE;
 			}
-
-			if (lombric->pas > 0)
-				lombric->pas -= lombric->vitesse;
-			
-			VieillirLombric(lombric->tete);
-		
-			lombric->longueur = LongueurLombric(lombric->tete);		
+				
+			lombric->longueur = LongueurLombric(lombric->tete) - 1;		
 		
 			MiseAJourRecords(lombric, records_temp);	
 		}		
@@ -215,9 +220,9 @@ int main(int argc, char *argv[])
 //------------Affichage des objets--------------------------------------
 
 		AfficherCadeau(renderer, &rect_cadeau, cadeau);
-		AfficherLombric(renderer, &rect_cadeau, lombric->tete);
+		AfficherLombric(renderer, &rect_cadeau, lombric_affiche->tete);
 		if (SDL_GetTicks() - anim_niveau < 1000)
-			EcrireTexte(renderer, "Nv++", font, lombric->tete->x, lombric->tete->y - TUILE, 50, 60, JAUNE);	
+			EcrireTexte(renderer, "Nv++", font, lombric_affiche->tete->x, lombric_affiche->tete->y - 2 * TUILE, 50, 60, JAUNE);	
 			
 //------------Partie arrêtée--------------------------------------------
 
@@ -291,7 +296,6 @@ int main(int argc, char *argv[])
 		limit_fps(frame_limit);
 		frame_limit = SDL_GetTicks() + FPS;
 		
-
 	}
 	
 //------------------Sauvegarder les records ----------------------------
@@ -308,7 +312,9 @@ int main(int argc, char *argv[])
 	
 	LibererCadeaux(cadeau);
 	LibererAnneaux(lombric->tete);
+	LibererAnneaux(lombric_affiche->tete);
 	free(lombric);
+	free(lombric_affiche);
 	free(records_temp);	
 	TTF_CloseFont(font);
 	TTF_Quit();	

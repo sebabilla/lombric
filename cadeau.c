@@ -24,10 +24,10 @@ Cadeau *NouveauCadeau(Cadeau *c, Anneau *a)
 Bool ResetCadeau(Cadeau *c, Cadeau *testc, Anneau *testa)
 {
 	int x, y;
-	for (int i; i < 10000; i++)
+	for (int i = 0; i < 10000; i++)
 	{
-		x = (rand() % ((LARGEUR_TERRAIN) / TUILE)) * TUILE;
-		y = (rand() % ((HAUTEUR_TERRAIN) / TUILE)) * TUILE;
+		x = rand() % (LARGEUR_TERRAIN / TUILE) * TUILE;
+		y = rand() % (HAUTEUR_TERRAIN / TUILE) * TUILE;
 		if (CollisionLombric(testa, x, y, FAUX) == FAUX)
 		{
 			if (testc != NULL)
@@ -85,7 +85,7 @@ void CadeauSupplementaire(Cadeau *c, Cadeau *testc, Anneau *testa)
 Evenement GestionCadeau(Cadeau *c, Cadeau *testc, Anneau *a)
 {	
 	Evenement tmp;
-	if (abs(a->x - c->x) < TUILE / 2 + TUILE && abs(a->y - c->y) < TUILE / 2 + TUILE)
+	if ((abs(c->y - a->y) < TUILE / 2) && (abs(c->x - a->x) < TUILE / 2))
 	{
 		tmp = c->evm[0];
 		ResetCadeau(c, testc, a);
@@ -116,7 +116,7 @@ void LibererCadeaux(Cadeau *c)
 
 Bool CollisionCadeau(Cadeau *c, int x, int y)
 {
-	if (abs(c->x + TUILE /2 - x) < TUILE && abs(c->y + TUILE / 2 - y) < TUILE)
+	if ((abs(c->y - y) < TUILE / 2) && (abs(c->x - x) < TUILE / 2))
 			return VRAI;
 	
 	if (c->suivant != 0)

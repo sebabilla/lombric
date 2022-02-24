@@ -21,6 +21,7 @@ Bool VerificationSauvegarde(const char *s)
 	fprintf(sauvegarde, "%d\n", 0);
 	fprintf(sauvegarde, "%d\n", 0);
 	fprintf(sauvegarde, "%d\n", 0);
+	fprintf(sauvegarde, "%d\n", 0);
 	printf("sauvegarde creee\n");
 	fclose(sauvegarde);
 	return VRAI;
@@ -36,9 +37,9 @@ Lombric *NouveauLombric()
 		return NULL;
 	}
 	
-	a->x = LARGEUR_TERRAIN / 2;
-	a->y = HAUTEUR_TERRAIN / 2;
-	a->age = 0;
+	a->x = LARGEUR_TERRAIN / TUILE * TUILE / 2 + SHIFT; // pour être sur une tuile
+	a->y = HAUTEUR_TERRAIN / TUILE * TUILE / 2 + SHIFT;
+	a->tete = VRAI;
 	a->dir = GAUCHE;
 	a->evm = LOMBRIC;
 	a->suivant = NULL;
@@ -53,19 +54,47 @@ Lombric *NouveauLombric()
 	}
 	
 	l->evm = RIEN;
-	l->pas = 0;
-	l->vitesse = 3;
+	l->vitesse = 15;
 	l->longueur = 0;
 	l->point = 0;
 	l->niveau = 0;
 	l->maintenant = 0;
 	l->tete = a;
 
-	for (int i = 0; i < (2 * TUILE); i++)
+	for (int i = 0; i < 2; i++)
 		AjouterQueue(l->tete, VRAI);
 
 	return l;
 	
+}
+
+void CopieLombric(Lombric *loriginal, Lombric *lcopie)
+{
+	LibererAnneaux(lcopie->tete);
+	lcopie->tete = CopierAnneaux(loriginal->tete);	
+}
+
+Anneau *CopierAnneaux(Anneau *a)
+{
+	if (a == NULL)
+		return NULL;
+	
+	Anneau *nouveau = malloc(sizeof(Anneau));
+	if (nouveau == NULL)
+	{
+		free(nouveau);
+		printf("Erreur d'allocation mémoire\n");
+		return NULL;
+	}
+  
+    nouveau->x = a->x;
+    nouveau->y = a->y;
+    nouveau->tete = a->tete;
+	nouveau->dir = a->dir;
+        
+    nouveau->suivant = CopierAnneaux(a->suivant);
+  
+    return nouveau;
 }
 
 Anneau *AjouterQueue(Anneau *a, Bool nouveau)
@@ -80,11 +109,6 @@ Anneau *AjouterQueue(Anneau *a, Bool nouveau)
 			return NULL;
 		}
 		
-		if (nouveau == VRAI)
-			n->age = 0;
-		else
-			n->age = 2 * TUILE;
-		
 		n->dir = a->dir;
 		n->evm = LOMBRIC;
 		n->suivant = NULL;
@@ -92,20 +116,20 @@ Anneau *AjouterQueue(Anneau *a, Bool nouveau)
 		switch(n->dir)
 		{
 			case GAUCHE:
-				n->x = a->x + 1;
+				n->x = a->x + TUILE;
 				n->y = a->y;
 				break;
 			case DROITE:
-				n->x = a->x - 1;
+				n->x = a->x - TUILE;
 				n->y = a->y;
 				break;
 			case HAUT:
 				n->x = a->x;
-				n->y = a->y + 1;
+				n->y = a->y + TUILE;
 				break;
 			case BAS:
 				n->x = a->x;
-				n->y = a->y - 1;
+				n->y = a->y - TUILE;
 				break;
 			default:
 				break;
@@ -143,34 +167,26 @@ Lombric *NouvelleTete(Lombric *l)
 	{
 		case HAUT:
 			a->x = l->tete->x;
-			a->y = l->tete->y - 1;
+			a->y = l->tete->y - TUILE;
 			break;
 		case BAS:
 			a->x = l->tete->x;
-			a->y = l->tete->y + 1;
+			a->y = l->tete->y + TUILE;
 			break;
 		case GAUCHE:
-			a->x = l->tete->x - 1;
+			a->x = l->tete->x - TUILE;
 			a->y = l->tete->y;
 			break;
 		case DROITE:
-			a->x = l->tete->x + 1;
+			a->x = l->tete->x + TUILE;
 			a->y = l->tete->y;
 			break;
 		default:
 			printf("Erreur: Le lombric n'a plus de direction'\n");
 			return NULL;
 	}
-
-	if (l->tete->dir == l->tete->suivant->dir)
-		a->evm = LOMBRIC;
-	else
-	{
-		if (l->tete->dir != l->tete->suivant->dir)
-			a->evm = LANGLE;
-	}
-	l->tete->suivant->age = 1;
-	a->age = 0;
+	l->tete->tete = FAUX;
+	a->tete = VRAI;
 	a->dir = l->tete->dir;
 	a->suivant = l->tete;
 	l->tete = a;
@@ -193,32 +209,20 @@ void ChangerDirection(int b, Lombric *l)
 	switch(b)
 		{
 			case HAUT:
-				if (l->tete->dir != BAS && l->pas <= 0)
-				{
+				if (l->tete->dir != BAS)
 					l->tete->dir = HAUT;
-					l->pas = TUILE + 1;
-				}
 				break;
 			case BAS:
-				if (l->tete->dir != HAUT && l->pas <= 0)
-				{
+				if (l->tete->dir != HAUT)
 					l->tete->dir = BAS;
-					l->pas = TUILE + 1;
-				}
 				break;
 			case GAUCHE:
-				if (l->tete->dir != DROITE && l->pas <= 0)
-				{
+				if (l->tete->dir != DROITE)
 					l->tete->dir = GAUCHE;
-					l->pas = TUILE + 1;
-				}
 				break;
 			case DROITE:
-				if (l->tete->dir != GAUCHE && l->pas <= 0)
-				{
+				if (l->tete->dir != GAUCHE)
 					l->tete->dir = DROITE;
-					l->pas = TUILE + 1;
-				}
 				break;
 			default:
 				break;
@@ -228,41 +232,58 @@ void ChangerDirection(int b, Lombric *l)
 
 Lombric *Bouger(Lombric *l)
 {
-	for (int i = 0; i < l->vitesse; i++)
-		NouvelleTete(l);
+	NouvelleTete(l);
 	
 	switch(l->evm)
 	{
 		case RIEN:
-			for (int i = 0; i < l->vitesse; i++)
-				DetruireQueue(l->tete);
+			DetruireQueue(l->tete);
 			break;
 		case MO:
 			l->evm = RIEN;
-			for (int i = 0; i < TUILE; i ++)
-				AjouterQueue(l->tete, FAUX);
 			break;
 		case VITPLUS:
 			l->evm = RIEN;
 			l->vitesse++;
-			if (l->vitesse > TUILE)
-				l->vitesse = TUILE;
-			for (int i = 0; i < l->vitesse; i++)
-				DetruireQueue(l->tete);
+			if (l->vitesse > TUILE - 4)
+				l->vitesse = TUILE - 4;
+			DetruireQueue(l->tete);
 			break;
 		case VITMOINS:
 			l->evm = RIEN;
 			l->vitesse--;
-			if (l->vitesse < 1)
-				l->vitesse = 1;
-			for (int i = 0; i < l->vitesse; i++)
-				DetruireQueue(l->tete);
+			if (l->vitesse < 10);
+			DetruireQueue(l->tete);
 			break;
 		default:
 			break;
 	}
 		
 	return l;
+}
+
+void faux_mouvement(Anneau *acopie, int v)
+{
+	if (acopie->suivant != NULL)
+		faux_mouvement(acopie->suivant, v);
+	
+	switch(acopie->dir)
+		{
+			case HAUT:
+				acopie->y -= (float)TUILE / (TUILE - v);
+				break;
+			case BAS:
+				acopie->y += (float)TUILE / (TUILE - v);
+				break;
+			case GAUCHE:
+				acopie->x -= (float)TUILE / (TUILE - v);
+				break;
+			case DROITE:
+				acopie->x += (float)TUILE / (TUILE - v);
+				break;
+			default:
+				break;
+		}
 }
 
 Bool CollisionTeteMur(Anneau *a)
@@ -280,12 +301,10 @@ Bool CollisionTeteMur(Anneau *a)
 
 Bool CollisionLombric(Anneau *a, int x, int y, Bool vieux)
 {	
-	if (vieux == VRAI)
-		if (a->age > TUILE && abs(a->x - x) < TUILE / 2 && abs(a->y - y) < TUILE / 2)
-			return VRAI;
-	if (vieux == FAUX)
-		if (abs(a->x - x) < 2 * TUILE && abs(a->y - y) < 2 * TUILE)
-			return VRAI;
+	if (vieux != VRAI || a->tete != VRAI)
+		if ((a->x == x && abs(a->y - y) < TUILE) ||
+			(a->y == y && abs(a->x - x) < TUILE))
+				return VRAI;
 	
 	if (a->suivant != 0)
 		return CollisionLombric(a->suivant, x, y, vieux);
@@ -355,6 +374,7 @@ Bool NiveauSupplementaire(Lombric *l)
 	return FAUX;
 }
 
+/*
 void VieillirLombric(Anneau *a)
 {
 	a->age++;
@@ -362,6 +382,7 @@ void VieillirLombric(Anneau *a)
 	if (a->suivant != NULL)
 		VieillirLombric(a->suivant);
 }
+*/
 
 void MiseAJourRecords(Lombric *l, Records *rt)
 {
@@ -371,4 +392,6 @@ void MiseAJourRecords(Lombric *l, Records *rt)
 		rt->niveau = l->niveau;
 	if (rt->temps < l->maintenant)
 		rt->temps = l->maintenant;
+	if (rt->longueur < l->longueur)
+		rt->longueur = l->longueur;
 }

@@ -86,34 +86,90 @@ void AfficherLombric(SDL_Renderer *r, SDL_Rect *rect_c, Anneau *a)
 {
 	if (a->suivant != NULL)
 		AfficherLombric(r, rect_c, a->suivant);
-	
-	if (SDL_SetRenderDrawColor(r, 255, 180, 195, SDL_ALPHA_OPAQUE) != 0)
-		SDL_ExitWithError("Impossible de changer la couleur du rendu");	
-	
-	int X1, X2, Y1, Y2;
-	
-	switch(a->evm)
+		
+	if (a->tete == VRAI)
 	{
-		case LOMBRIC:
-				if (a->dir == GAUCHE || a->dir == DROITE)
-				{
-					X1 = a->x + SHIFT; Y1 = a->y - TUILE / 2 + SHIFT; X2 = a->x + SHIFT; Y2 = a->y + TUILE / 2 + SHIFT;
-				}		
-				else
-				{
-					X1 = a->x - TUILE / 2 + SHIFT; Y1 = a->y + SHIFT; X2 = a->x + TUILE / 2 + SHIFT; Y2 = a->y + SHIFT;
-				}
-				if (SDL_RenderDrawLine(r, X1, Y1, X2, Y2) != 0)
+		SDL_Rect rect_tete = {.w = 12, .h = 12};
+		SDL_Rect rect_oeil = {.w = 10, .h = 10};
+		
+		switch(a->dir)
+		{
+			case HAUT:
+				rect_tete.x = a->x + 6; rect_tete.y = a->y + 13;
+				if (SDL_SetRenderDrawColor(r, 255, 180, 195, SDL_ALPHA_OPAQUE) != 0)
+					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
+				if (SDL_RenderFillRect(r, &rect_tete) != 0)
 					SDL_ExitWithError("Impossible de dessiner un rectangle");
-			break;
-		case LANGLE:
-			rect_c->x = a->x - TUILE / 2 + SHIFT;
-			rect_c->y = a->y - TUILE / 2 + SHIFT;
-			if (SDL_RenderFillRect(r, rect_c) != 0)
-				SDL_ExitWithError("Impossible de dessiner un rectangle");
-			break;
-		default:
-			break;
+				if (SDL_SetRenderDrawColor(r, 255, 255, 255, SDL_ALPHA_OPAQUE) != 0)
+					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
+				rect_oeil.x = a->x - 5; rect_oeil.y = a->y + 15;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				rect_oeil.x = a->x + 20; rect_oeil.y = a->y + 15;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				break;
+			case BAS:
+				rect_tete.x = a->x + 6; rect_tete.y = a->y;
+				if (SDL_SetRenderDrawColor(r, 255, 180, 195, SDL_ALPHA_OPAQUE) != 0)
+					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
+				if (SDL_RenderFillRect(r, &rect_tete) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				if (SDL_SetRenderDrawColor(r, 255, 255, 255, SDL_ALPHA_OPAQUE) != 0)
+					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
+				rect_oeil.x = a->x - 5; rect_oeil.y = a->y;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				rect_oeil.x = a->x + 20; rect_oeil.y = a->y;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				break;
+			case GAUCHE:
+				rect_tete.x = a->x + 13; rect_tete.y = a->y + 6;
+				if (SDL_SetRenderDrawColor(r, 255, 180, 195, SDL_ALPHA_OPAQUE) != 0)
+					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
+				if (SDL_RenderFillRect(r, &rect_tete) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				if (SDL_SetRenderDrawColor(r, 255, 255, 255, SDL_ALPHA_OPAQUE) != 0)
+					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
+				rect_oeil.x = a->x + 15; rect_oeil.y = a->y - 5;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				rect_oeil.x = a->x + 15; rect_oeil.y = a->y + 20;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				break;
+			case DROITE:
+				rect_tete.x = a->x; rect_tete.y = a->y + 6;
+				if (SDL_SetRenderDrawColor(r, 255, 180, 195, SDL_ALPHA_OPAQUE) != 0)
+					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
+				if (SDL_RenderFillRect(r, &rect_tete) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				if (SDL_SetRenderDrawColor(r, 255, 255, 255, SDL_ALPHA_OPAQUE) != 0)
+					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
+				rect_oeil.x = a->x; rect_oeil.y = a->y - 5;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				rect_oeil.x = a->x; rect_oeil.y = a->y + 20;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				break;
+			default:
+				break;
+		}
+	}
+	else
+	{
+		rect_c->x = a->x;
+		rect_c->y = a->y;		
+		if (SDL_SetRenderDrawColor(r, 255, 180, 195, SDL_ALPHA_OPAQUE) != 0)
+			SDL_ExitWithError("Impossible de changer la couleur du rendu");	
+		if (SDL_RenderFillRect(r, rect_c) != 0)
+			SDL_ExitWithError("Impossible de dessiner un rectangle");
+		if (SDL_SetRenderDrawColor(r, 255, 0, 111, SDL_ALPHA_OPAQUE) != 0)
+			SDL_ExitWithError("Impossible de changer la couleur du rendu");	
+		if (SDL_RenderDrawRect(r, rect_c) != 0)
+			SDL_ExitWithError("Impossible de dessiner un rectangle");
 	}
 }
 
@@ -138,7 +194,7 @@ void EcrireTexte(SDL_Renderer *r, char *texte, TTF_Font *f, int X, int Y, int W,
 		couleur.r = 0; couleur.g = 0; couleur.b = 0, couleur.a = 0;
 	}
 									
-	SDL_Surface *surfaceMessage = TTF_RenderUTF8_Blended(f, texte, couleur);
+	SDL_Surface *surfaceMessage = TTF_RenderUTF8_Solid(f, texte, couleur);
 	SDL_Texture *Message = SDL_CreateTextureFromSurface(r, surfaceMessage);
 	SDL_Rect MessageRect = {.x = X, .y = Y, .w = W, .h = H};
 	SDL_RenderCopy(r, Message, NULL, &MessageRect);
@@ -207,14 +263,17 @@ void AfficherRecords(SDL_Renderer *r, TTF_Font *f, Records *rt)
 	char record_pts[20];
 	char record_nv[20];
 	char record_t[20];
+	char record_lg[20];
 	sprintf(record_pts, "%05d points", rt->points);
 	sprintf(record_nv, "niveau %d sur 8", rt->niveau);
 	sprintf(record_t, "%02dh %02dm %02ds", rt->temps / 3600, (rt->temps % 3600) / 60, (rt->temps % 3600) % 60);
+	sprintf(record_lg, "%03d anneaux", rt->longueur);
 	
 	EcrireTexte(r, "RECORDS", f, LARGEUR_TERRAIN / 2 + SHIFT - 40, HAUTEUR_FENETRE - 260, 80, 25, BLANC);
 	EcrireTexte(r, record_pts, f, LARGEUR_TERRAIN / 2 + SHIFT - 60, HAUTEUR_FENETRE - 230, 120, 25, BLANC);
 	EcrireTexte(r, record_nv, f, LARGEUR_TERRAIN / 2 + SHIFT - 65, HAUTEUR_FENETRE - 200, 130, 25, BLANC);
 	EcrireTexte(r, record_t, f, LARGEUR_TERRAIN / 2 + SHIFT - 55, HAUTEUR_FENETRE - 170, 110, 25, BLANC);
+	EcrireTexte(r, record_lg, f, LARGEUR_TERRAIN / 2 + SHIFT - 60, HAUTEUR_FENETRE - 140, 120, 25, BLANC);
 	
 	EcrireTexte(r, "Par Sébastien Abilla, Licence MIT", f, LARGEUR_TERRAIN + SHIFT - 260, HAUTEUR_FENETRE - SHIFT - 20, 260, 20, GRIS);
 }
