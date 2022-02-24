@@ -159,7 +159,7 @@ void AfficherPerdu(SDL_Renderer *r, TTF_Font *f)
 void AfficherFelecitations(SDL_Renderer *r, TTF_Font *f)
 {
 	EcrireTexte(r, "Niveau 8! FELICITATIONS!", f, SHIFT + LARGEUR_TERRAIN / 2 - 250, SHIFT + HAUTEUR_TERRAIN / 2 - 50, 500, 100, JAUNE);
-	EcrireTexte(r, "Je pensais cela impossible! ... 'Echap' pour aller encore plus loin!", f, SHIFT + LARGEUR_TERRAIN / 2 - 350, SHIFT + HAUTEUR_TERRAIN / 2 + 50, 700, 50, JAUNE);
+	EcrireTexte(r, "Je pensais cela impossible! 'Espace' pour aller encore plus loin!", f, SHIFT + LARGEUR_TERRAIN / 2 - 350, SHIFT + HAUTEUR_TERRAIN / 2 + 50, 700, 50, JAUNE);
 	
 }
 

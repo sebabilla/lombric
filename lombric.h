@@ -16,6 +16,11 @@ typedef enum Bool
 	FAUX, VRAI
 } Bool;
 
+typedef enum Partie
+{
+	ENCOURS, ENPAUSE, PERDU, VICTOIRE
+} Partie;
+
 
 typedef enum Direction
 {

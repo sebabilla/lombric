@@ -2,6 +2,5 @@
 #define __CONTROLE__H__
 
 Direction EntreeJoueur(void);
-Direction Attendre(void);
 
 #endif

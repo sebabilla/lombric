@@ -14,6 +14,7 @@ int main(int argc, char *argv[])
 {
 
 	SDL_bool program_launched = SDL_TRUE;
+	Partie partie = ENCOURS;
 
 //------------------Chargement Sauvegarde-------------------------------	
 	
@@ -115,22 +116,6 @@ int main(int argc, char *argv[])
 	
 	while (program_launched)
 	{
-//------------Level up ?------------------------------------------------
-
-		if (NiveauSupplementaire(lombric) == VRAI)
-		{
-			if (cadeau == NULL)
-			{
-				cadeau = NouveauCadeau(cadeau, lombric->tete); // Placé ici pour ne pas avoir de cadeau sur le premier lombric... fonctionne mieux, mais encore quelques fails...
-				anim_niveau = -10000;
-			}
-			else
-			{
-				CadeauSupplementaire(cadeau, cadeau, lombric->tete);
-				anim_niveau = SDL_GetTicks();
-			}
-		}
-		
 //------------Régénérer l'affichage dans la fenêtre---------------------
 		
 		if (SDL_RenderClear(renderer) != 0) 
@@ -149,13 +134,6 @@ int main(int argc, char *argv[])
 			SDL_ExitWithError("Impossible de dessiner un rectangle");
 		
 		
-//------------Affichage des objets--------------------------------------
-
-		AfficherCadeau(renderer, &rect_cadeau, cadeau);
-		AfficherLombric(renderer, &rect_cadeau, lombric->tete);
-		if (SDL_GetTicks() - anim_niveau < 1000)
-			EcrireTexte(renderer, "Nv++", font, lombric->tete->x, lombric->tete->y - TUILE, 50, 60, JAUNE);	
-
 //------------Affichage des informations--------------------------------				
 
 		sprintf(temps, "%02d : %02d", lombric->maintenant / 60, lombric->maintenant % 60);
@@ -173,84 +151,126 @@ int main(int argc, char *argv[])
 		AfficherCommandes(renderer, font);
 		
 		AfficherLegende(renderer, font);
-							
-//------------Générer l'image et attendre le tick-----------------------
 
-		SDL_RenderPresent(renderer);
-			
-		frame_limit = SDL_GetTicks() + FPS; 
-		limit_fps(frame_limit);
-		frame_limit = SDL_GetTicks() + FPS;
-
-//------------Réagir à l'action du joueur-------------------------------
+//------------Que veut faire le joueur SDL_Event-------------------------------
 		
 		bouton = EntreeJoueur();
 		
-		if (bouton == PAUSE)
+		if (partie == ENCOURS)
 		{
-			pause_maintenant = SDL_GetTicks();
-			AfficherPause(renderer, font);
-			AfficherRecords(renderer, font, records_temp);
-			SDL_RenderPresent(renderer);
-			bouton = Attendre();
-			debut += SDL_GetTicks() - pause_maintenant;
+			ChangerDirection(bouton, lombric);
+			Bouger(lombric);
+				
+//------------Level up ?------------------------------------------------
+
+			if (NiveauSupplementaire(lombric) == VRAI)
+			{
+				if (cadeau == NULL)
+				{
+					cadeau = NouveauCadeau(cadeau, lombric->tete); // Placé ici pour ne pas avoir de cadeau sur le premier lombric... fonctionne mieux, mais encore quelques fails...
+					anim_niveau = -10000;
+				}
+				else
+				{
+					CadeauSupplementaire(cadeau, cadeau, lombric->tete);
+					anim_niveau = SDL_GetTicks();
+				}	
+			}
+		
+//------------Nouvelle position entraine-t'elle une collision ?---------
+
+			if (CollisionCadeau(cadeau, lombric->tete->x, lombric->tete->y) == VRAI)
+			{
+				lombric->evm = GestionCadeau(cadeau, cadeau, lombric->tete);
+				lombric->point += lombric->longueur / TUILE / 2 + 1;
+			}
+			
+			
+			
+			if ((CollisionTeteMur(lombric->tete) == VRAI) || 
+				(CollisionLombric(lombric->tete, lombric->tete->x, lombric->tete->y, VRAI) == VRAI))
+				partie = PERDU;
+
+//------------Actualiser les compteurs----------------------------------
+
+			DiminuerCompteur(cadeau, cadeau, lombric->tete);
+				lombric->maintenant = (SDL_GetTicks() - debut) / 1000;
+		
+			if (lombric->niveau == 8 && felicitations == 0)
+			{
+				pause_maintenant = SDL_GetTicks();
+				partie = VICTOIRE;
+			}
+
+			if (lombric->pas > 0)
+				lombric->pas -= lombric->vitesse;
+			
+			VieillirLombric(lombric->tete);
+		
+			lombric->longueur = LongueurLombric(lombric->tete);		
+		
+			MiseAJourRecords(lombric, records_temp);	
+		}		
+				
+//------------Affichage des objets--------------------------------------
+
+		AfficherCadeau(renderer, &rect_cadeau, cadeau);
+		AfficherLombric(renderer, &rect_cadeau, lombric->tete);
+		if (SDL_GetTicks() - anim_niveau < 1000)
+			EcrireTexte(renderer, "Nv++", font, lombric->tete->x, lombric->tete->y - TUILE, 50, 60, JAUNE);	
+			
+//------------Partie arrêtée--------------------------------------------
+
+		switch(partie)
+		{
+			case ENPAUSE:
+				AfficherPause(renderer, font);
+				AfficherRecords(renderer, font, records_temp);
+				if (bouton == PAUSE)
+				{
+					debut += SDL_GetTicks() - pause_maintenant;
+					partie = ENCOURS;
+					bouton = SANS;
+				}
+				if (bouton == COMMENCER)
+					partie = ENCOURS;
+				break;
+				
+			case VICTOIRE:
+				felicitations = 1;
+				AfficherFelecitations(renderer, font);
+				AfficherRecords(renderer, font, records_temp);
+				if (bouton == PAUSE)
+				{
+					debut += SDL_GetTicks() - pause_maintenant;
+					partie = ENCOURS;
+					bouton = SANS;
+				}
+				if (bouton == COMMENCER)
+					partie = ENCOURS;
+				break;
+			
+			case PERDU:
+				AfficherPerdu(renderer, font);
+				AfficherRecords(renderer, font, records_temp);
+				if (bouton == COMMENCER)
+					partie = ENCOURS;
+				break;
+			default:
+				break;				
 		}
 		
 		if (bouton == FERMERFENETRE)
 			program_launched = SDL_FALSE;
 		
-		ChangerDirection(bouton, lombric);
-		
-//------------Actualiser les compteurs----------------------------------
-
-		if (lombric->pas > 0)
-			lombric->pas -= lombric->vitesse;
-			
-		VieillirLombric(lombric->tete);
-		
-		lombric->longueur = LongueurLombric(lombric->tete);
-		
-		lombric->maintenant = (SDL_GetTicks() - debut) / 1000;
-		
-		MiseAJourRecords(lombric, records_temp);
-		
-		if (lombric->niveau == 8 && felicitations == 0)
-			{
-				pause_maintenant = SDL_GetTicks();
-				felicitations = 1;
-				AfficherFelecitations(renderer, font);
-				AfficherRecords(renderer, font, records_temp);
-				SDL_RenderPresent(renderer);
-				bouton = Attendre();
-				debut += SDL_GetTicks() - pause_maintenant;
-			}
-
-//------------Nouvelle position entraine-t'elle une collision ?---------		
-		
-		Bouger(lombric);
-		
-		if (CollisionCadeau(cadeau, lombric->tete->x, lombric->tete->y) == VRAI)
+		if (partie == ENCOURS && bouton == PAUSE)
 		{
-			lombric->evm = GestionCadeau(cadeau, cadeau, lombric->tete);
-			lombric->point += lombric->longueur / TUILE / 2 + 1;
+			partie = ENPAUSE;
+			bouton = SANS;
+			pause_maintenant = SDL_GetTicks();
 		}
-		
-		DiminuerCompteur(cadeau, cadeau, lombric->tete);
 			
-		if ((CollisionTeteMur(lombric->tete) == VRAI) || 
-			(CollisionLombric(lombric->tete, lombric->tete->x, lombric->tete->y, VRAI) == VRAI))
-		{
-			AfficherPerdu(renderer, font);
-			AfficherRecords(renderer, font, records_temp);
-			SDL_RenderPresent(renderer);
-			bouton = Attendre();
-			if (bouton == PAUSE)
-				bouton = COMMENCER;
-			if (bouton == FERMERFENETRE)
-				program_launched = SDL_FALSE;
-		}
-				
-		if (bouton == COMMENCER)
+		if (partie == ENCOURS && bouton == COMMENCER)
 		{
 			LibererAnneaux(lombric->tete);
 			free(lombric);
@@ -259,8 +279,19 @@ int main(int argc, char *argv[])
 			cadeau = NULL;
 			debut = SDL_GetTicks();
 			bouton = SANS;
+			felicitations = 0;
 		}
+				
+							
+//------------Générer l'image et attendre le tick-----------------------
+
+		SDL_RenderPresent(renderer);
+			
+		frame_limit = SDL_GetTicks() + FPS; 
+		limit_fps(frame_limit);
+		frame_limit = SDL_GetTicks() + FPS;
 		
+
 	}
 	
 //------------------Sauvegarder les records ----------------------------

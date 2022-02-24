@@ -102,25 +102,3 @@ Direction EntreeJoueur(void)
 		}
 		return SANS;
 }
-
-Direction Attendre(void)
-{
-	SDL_Event event;
-
-	while (1)
-	{	
-		SDL_WaitEvent(&event);
-			if (event.type == SDL_KEYDOWN || event.type == SDL_JOYBUTTONDOWN)
-			{
-				if (event.key.keysym.sym == SDLK_SPACE || event.jbutton.button == 0 || event.jbutton.button == 6)
-					return PAUSE;
-				else if (event.key.keysym.sym == SDLK_RETURN || event.jbutton.button == 7)
-					return COMMENCER;
-				else if (event.key.keysym.sym == SDLK_ESCAPE)
-					return FERMERFENETRE;
-			}
-					
-			if (event.type == SDL_QUIT) 
-				return FERMERFENETRE;
-	}
-}
