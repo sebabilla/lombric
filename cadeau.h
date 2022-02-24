@@ -2,7 +2,7 @@
 #define __CADEAU__H__
 
 Cadeau *NouveauCadeau(Cadeau *c, Anneau *a);
-void ResetCadeau(Cadeau *c, Cadeau *testc, Anneau *testa);
+Bool ResetCadeau(Cadeau *c, Cadeau *testc, Anneau *testa);
 void CadeauSupplementaire(Cadeau *c, Cadeau *testc, Anneau *testa);
 Evenement GestionCadeau(Cadeau *c, Cadeau *testc, Anneau *a);
 void DiminuerCompteur(Cadeau *c, Cadeau *testc, Anneau *testa);

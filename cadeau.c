@@ -21,11 +21,10 @@ Cadeau *NouveauCadeau(Cadeau *c, Anneau *a)
 	return n;
 }
 
-void ResetCadeau(Cadeau *c, Cadeau *testc, Anneau *testa)
+Bool ResetCadeau(Cadeau *c, Cadeau *testc, Anneau *testa)
 {
 	int x, y;
-	Bool tests = VRAI;
-	while (tests == VRAI)
+	for (int i; i < 10000; i++)
 	{
 		x = (rand() % ((LARGEUR_TERRAIN) / TUILE)) * TUILE;
 		y = (rand() % ((HAUTEUR_TERRAIN) / TUILE)) * TUILE;
@@ -34,13 +33,15 @@ void ResetCadeau(Cadeau *c, Cadeau *testc, Anneau *testa)
 			if (testc != NULL)
 			{
 				if (CollisionCadeau(testc, x, y) == FAUX)
-					tests = FAUX;
+					break;
 			}
 			else
 			{
-				tests = FAUX;
+				break;
 			}
 		}
+		if (i == 9999) // Il n'y a probablement plus assez de place sur le terrain;
+			return FAUX;
 	}
 	
 	c->x = x;
@@ -67,6 +68,8 @@ void ResetCadeau(Cadeau *c, Cadeau *testc, Anneau *testa)
 	}
 	
 	c->compteur = TEMPSCADEAU;
+	
+	return VRAI;
 }
 
 void CadeauSupplementaire(Cadeau *c, Cadeau *testc, Anneau *testa)
