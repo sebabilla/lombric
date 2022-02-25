@@ -6,12 +6,13 @@ void limit_fps(unsigned int limit); // Copiée telle quelle de Jason Champagne @
 
 void AfficherCadeau(SDL_Renderer *r, SDL_Rect *rect_c, Cadeau *c);
 void AfficherLombric(SDL_Renderer *r, SDL_Rect *rect_c, Anneau *a);
-void EcrireTexte(SDL_Renderer *r, char *texte, TTF_Font *f, int X, int Y, int W, int H, CouleurTexte c);
+SDL_Texture *TextureTexte(SDL_Renderer *r, char *texte, TTF_Font *f, CouleurTexte c);
+void EcrireTexteProvisoire(SDL_Renderer *r, char *texte, TTF_Font *f, int X, int Y, int W, int H, CouleurTexte c);
 void AfficherPause(SDL_Renderer *r, TTF_Font *f);
 void AfficherPerdu(SDL_Renderer *r, TTF_Font *f);
 void AfficherFelecitations(SDL_Renderer *r, TTF_Font *f);
-void AfficherCommandes(SDL_Renderer *r, TTF_Font *f);
-void AfficherLegende(SDL_Renderer *r, TTF_Font *f);
+void AfficherCommandes(SDL_Renderer *r, SDL_Texture **text_t);
+void AfficherLegende(SDL_Renderer *r, SDL_Texture **text_t);
 void AfficherRecords(SDL_Renderer *r, TTF_Font *f, Records *rt);
 
 #endif

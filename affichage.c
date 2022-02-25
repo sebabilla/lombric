@@ -173,7 +173,7 @@ void AfficherLombric(SDL_Renderer *r, SDL_Rect *rect_c, Anneau *a)
 	}
 }
 
-void EcrireTexte(SDL_Renderer *r, char *texte, TTF_Font *f, int X, int Y, int W, int H, CouleurTexte c)
+SDL_Texture *TextureTexte(SDL_Renderer *r, char *texte, TTF_Font *f, CouleurTexte c)
 {
 	SDL_Color couleur;
 	
@@ -194,42 +194,55 @@ void EcrireTexte(SDL_Renderer *r, char *texte, TTF_Font *f, int X, int Y, int W,
 		couleur.r = 0; couleur.g = 0; couleur.b = 0, couleur.a = 0;
 	}
 									
-	SDL_Surface *surfaceMessage = TTF_RenderUTF8_Solid(f, texte, couleur);
-	SDL_Texture *Message = SDL_CreateTextureFromSurface(r, surfaceMessage);
+	SDL_Surface *surface_message = TTF_RenderUTF8_Solid(f, texte, couleur);
+	SDL_Texture *message = SDL_CreateTextureFromSurface(r, surface_message);
+	SDL_FreeSurface(surface_message);
+	
+	return message;
+}
+
+void EcrireTexteProvisoire(SDL_Renderer *r, char *texte, TTF_Font *f, int X, int Y, int W, int H, CouleurTexte c)
+{	
+	SDL_Texture *message = TextureTexte(r, texte, f, c);	
 	SDL_Rect MessageRect = {.x = X, .y = Y, .w = W, .h = H};
-	SDL_RenderCopy(r, Message, NULL, &MessageRect);
-	SDL_FreeSurface(surfaceMessage);
-	SDL_DestroyTexture(Message);
+	SDL_RenderCopy(r, message, NULL, &MessageRect);
+	SDL_DestroyTexture(message);
 }
 
 void AfficherPause(SDL_Renderer *r, TTF_Font *f)
 {
-	EcrireTexte(r, "PAUSE", f, SHIFT + LARGEUR_TERRAIN / 2 - 75, SHIFT + HAUTEUR_TERRAIN / 2 - 50, 150, 100, JAUNE);
+	EcrireTexteProvisoire(r, "PAUSE", f, SHIFT + LARGEUR_TERRAIN / 2 - 75, SHIFT + HAUTEUR_TERRAIN / 2 - 50, 150, 100, JAUNE);
 }
 
 void AfficherPerdu(SDL_Renderer *r, TTF_Font *f)
 {
-	EcrireTexte(r, "PERDU", f, SHIFT + LARGEUR_TERRAIN / 2 - 75, SHIFT + HAUTEUR_TERRAIN / 2 - 50, 150, 100, JAUNE);
+	EcrireTexteProvisoire(r, "PERDU", f, SHIFT + LARGEUR_TERRAIN / 2 - 75, SHIFT + HAUTEUR_TERRAIN / 2 - 50, 150, 100, JAUNE);
 }
 
 void AfficherFelecitations(SDL_Renderer *r, TTF_Font *f)
 {
-	EcrireTexte(r, "Niveau 8! FELICITATIONS!", f, SHIFT + LARGEUR_TERRAIN / 2 - 250, SHIFT + HAUTEUR_TERRAIN / 2 - 50, 500, 100, JAUNE);
-	EcrireTexte(r, "Je pensais cela impossible! 'Espace' pour aller encore plus loin!", f, SHIFT + LARGEUR_TERRAIN / 2 - 350, SHIFT + HAUTEUR_TERRAIN / 2 + 50, 700, 50, JAUNE);
+	EcrireTexteProvisoire(r, "Niveau 8! FELICITATIONS!", f, SHIFT + LARGEUR_TERRAIN / 2 - 250, SHIFT + HAUTEUR_TERRAIN / 2 - 50, 500, 100, JAUNE);
+	EcrireTexteProvisoire(r, "Je pensais cela impossible! 'Espace' pour aller encore plus loin!", f, SHIFT + LARGEUR_TERRAIN / 2 - 350, SHIFT + HAUTEUR_TERRAIN / 2 + 50, 700, 50, JAUNE);
 	
 }
 
-void AfficherCommandes(SDL_Renderer *r, TTF_Font *f)
+void AfficherCommandes(SDL_Renderer *r, SDL_Texture **text_t)
 {
-	EcrireTexte(r, "Espace", f, LARGEUR_FENETRE - 230, HAUTEUR_FENETRE - 125, 60, 25, GRIS);
-	EcrireTexte(r, "PAUSE", f, LARGEUR_FENETRE - 160, HAUTEUR_FENETRE - 125, 60, 25, GRIS);
-	EcrireTexte(r, "Entrée", f, LARGEUR_FENETRE - 230, HAUTEUR_FENETRE - 100, 60, 25, GRIS);
-	EcrireTexte(r, "RECOMMENCER", f, LARGEUR_FENETRE - 160, HAUTEUR_FENETRE - 100, 135, 25, GRIS);
-	EcrireTexte(r, "Echap", f, LARGEUR_FENETRE - 230, HAUTEUR_FENETRE - 75, 50, 25, GRIS);
-	EcrireTexte(r, "QUITTER", f, LARGEUR_FENETRE - 160, HAUTEUR_FENETRE - 75, 75, 25, GRIS);
+	SDL_Rect message_rect1 = {.x = LARGEUR_FENETRE - 230, .y = HAUTEUR_FENETRE - 125, .w = 60, .h = 25};
+	SDL_RenderCopy(r, text_t[0], NULL, &message_rect1);
+	SDL_Rect message_rect2 = {.x = LARGEUR_FENETRE - 230, .y = HAUTEUR_FENETRE - 100, .w = 60, .h = 25};
+	SDL_RenderCopy(r, text_t[1], NULL, &message_rect2);
+	SDL_Rect message_rect3 = {.x = LARGEUR_FENETRE - 160, .y = HAUTEUR_FENETRE - 125, .w = 60, .h = 25};
+	SDL_RenderCopy(r, text_t[2], NULL, &message_rect3);
+	SDL_Rect message_rect4 = {.x = LARGEUR_FENETRE - 160, .y = HAUTEUR_FENETRE - 100, .w = 135, .h = 25};
+	SDL_RenderCopy(r, text_t[3], NULL, &message_rect4);
+	SDL_Rect message_rect5 = {.x = LARGEUR_FENETRE - 230, .y = HAUTEUR_FENETRE - 75, .w = 50, .h = 25};
+	SDL_RenderCopy(r, text_t[4], NULL, &message_rect5);
+	SDL_Rect message_rect6 = {.x = LARGEUR_FENETRE - 160, .y = HAUTEUR_FENETRE - 75, .w = 75, .h = 25};
+	SDL_RenderCopy(r, text_t[5], NULL, &message_rect6);
 }
 
-void AfficherLegende(SDL_Renderer *r, TTF_Font *f)
+void AfficherLegende(SDL_Renderer *r, SDL_Texture **text_t)
 {
 	SDL_Rect Rouge = {.x = LARGEUR_FENETRE - 255, .y = HAUTEUR_FENETRE - 260, .w = TUILE, .h = TUILE};
 	if (SDL_SetRenderDrawColor(r, 255, 0, 0, SDL_ALPHA_TRANSPARENT) != 0)
@@ -249,13 +262,19 @@ void AfficherLegende(SDL_Renderer *r, TTF_Font *f)
 	if (SDL_RenderFillRect(r, &Vert) != 0)
 			SDL_ExitWithError("Impossible de dessiner un rectangle");
 	
-	EcrireTexte(r, "t++", f, LARGEUR_FENETRE - 228, HAUTEUR_FENETRE - 260, TUILE, TUILE, JAUNE);
-	EcrireTexte(r, "v++", f, LARGEUR_FENETRE - 228, HAUTEUR_FENETRE - 230, TUILE, TUILE, JAUNE);
-	EcrireTexte(r, "v--", f, LARGEUR_FENETRE - 228, HAUTEUR_FENETRE - 200, TUILE, TUILE, JAUNE);
-	
-	EcrireTexte(r, "Feuilles d'automne", f, LARGEUR_FENETRE - 190, HAUTEUR_FENETRE - 260, 170, 25, BLANC);
-	EcrireTexte(r, "Exsudats racinaires", f, LARGEUR_FENETRE - 190, HAUTEUR_FENETRE - 230, 180, 25, BLANC);
-	EcrireTexte(r, "Pesticides", f, LARGEUR_FENETRE - 190, HAUTEUR_FENETRE - 200, 95, 25, BLANC);
+	SDL_Rect message_rect1 = {.x = LARGEUR_FENETRE - 228, .y = HAUTEUR_FENETRE - 260, .w = TUILE, .h = TUILE};
+	SDL_RenderCopy(r, text_t[0], NULL, &message_rect1);
+	SDL_Rect message_rect2 = {.x = LARGEUR_FENETRE - 228, .y = HAUTEUR_FENETRE - 230, .w = TUILE, .h = TUILE};
+	SDL_RenderCopy(r, text_t[1], NULL, &message_rect2);
+	SDL_Rect message_rect3 = {.x = LARGEUR_FENETRE - 228, .y = HAUTEUR_FENETRE - 200, .w = TUILE, .h = TUILE};
+	SDL_RenderCopy(r, text_t[2], NULL, &message_rect3);
+	SDL_Rect message_rect4 = {.x = LARGEUR_FENETRE - 190, .y = HAUTEUR_FENETRE - 260, .w = 170, .h = 25};
+	SDL_RenderCopy(r, text_t[3], NULL, &message_rect4);
+	SDL_Rect message_rect5 = {.x = LARGEUR_FENETRE - 190, .y = HAUTEUR_FENETRE - 230, .w = 180, .h = 25};
+	SDL_RenderCopy(r, text_t[4], NULL, &message_rect5);
+	SDL_Rect message_rect6 = {.x = LARGEUR_FENETRE - 190, .y = HAUTEUR_FENETRE - 200, .w = 95, .h = 25};
+	SDL_RenderCopy(r, text_t[5], NULL, &message_rect6);
+
 }
 
 void AfficherRecords(SDL_Renderer *r, TTF_Font *f, Records *rt)
@@ -269,12 +288,12 @@ void AfficherRecords(SDL_Renderer *r, TTF_Font *f, Records *rt)
 	sprintf(record_t, "%02dh %02dm %02ds", rt->temps / 3600, (rt->temps % 3600) / 60, (rt->temps % 3600) % 60);
 	sprintf(record_lg, "%03d anneaux", rt->longueur);
 	
-	EcrireTexte(r, "RECORDS", f, LARGEUR_TERRAIN / 2 + SHIFT - 40, HAUTEUR_FENETRE - 260, 80, 25, BLANC);
-	EcrireTexte(r, record_pts, f, LARGEUR_TERRAIN / 2 + SHIFT - 60, HAUTEUR_FENETRE - 230, 120, 25, BLANC);
-	EcrireTexte(r, record_nv, f, LARGEUR_TERRAIN / 2 + SHIFT - 65, HAUTEUR_FENETRE - 200, 130, 25, BLANC);
-	EcrireTexte(r, record_t, f, LARGEUR_TERRAIN / 2 + SHIFT - 55, HAUTEUR_FENETRE - 170, 110, 25, BLANC);
-	EcrireTexte(r, record_lg, f, LARGEUR_TERRAIN / 2 + SHIFT - 60, HAUTEUR_FENETRE - 140, 120, 25, BLANC);
+	EcrireTexteProvisoire(r, "RECORDS", f, LARGEUR_TERRAIN / 2 + SHIFT - 40, HAUTEUR_FENETRE - 260, 80, 25, BLANC);
+	EcrireTexteProvisoire(r, record_pts, f, LARGEUR_TERRAIN / 2 + SHIFT - 60, HAUTEUR_FENETRE - 230, 120, 25, BLANC);
+	EcrireTexteProvisoire(r, record_nv, f, LARGEUR_TERRAIN / 2 + SHIFT - 65, HAUTEUR_FENETRE - 200, 130, 25, BLANC);
+	EcrireTexteProvisoire(r, record_t, f, LARGEUR_TERRAIN / 2 + SHIFT - 55, HAUTEUR_FENETRE - 170, 110, 25, BLANC);
+	EcrireTexteProvisoire(r, record_lg, f, LARGEUR_TERRAIN / 2 + SHIFT - 60, HAUTEUR_FENETRE - 140, 120, 25, BLANC);
 	
-	EcrireTexte(r, "Par Sébastien Abilla, Licence MIT", f, LARGEUR_TERRAIN + SHIFT - 260, HAUTEUR_FENETRE - SHIFT - 20, 260, 20, GRIS);
+	EcrireTexteProvisoire(r, "Par Sébastien Abilla, Licence MIT", f, LARGEUR_TERRAIN + SHIFT - 260, HAUTEUR_FENETRE - SHIFT - 20, 260, 20, GRIS);
 }
 

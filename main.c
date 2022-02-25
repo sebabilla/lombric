@@ -9,7 +9,6 @@
 #include "affichage.h"
 #include "controle.h"
 
-
 int main(int argc, char *argv[])
 {
 
@@ -106,6 +105,19 @@ int main(int argc, char *argv[])
 						{SHIFT, SHIFT}};
 	SDL_Rect rect_cadeau = {.w = TUILE, .h = TUILE};
 	
+	SDL_Texture *texture_commande[6] = {TextureTexte(renderer, "Espace", font, GRIS),
+										TextureTexte(renderer, "PAUSE", font, GRIS),
+										TextureTexte(renderer, "Entrée", font, GRIS),
+										TextureTexte(renderer, "RECOMMENCER", font, GRIS),
+										TextureTexte(renderer, "Echap", font, GRIS),
+										TextureTexte(renderer, "QUITTER", font, GRIS)};
+	SDL_Texture *texture_legende[6] = {TextureTexte(renderer, "t++", font, JAUNE),
+										TextureTexte(renderer, "v++", font, JAUNE),
+										TextureTexte(renderer, "v--", font, JAUNE),
+										TextureTexte(renderer, "Feuilles d'automne", font, BLANC),
+										TextureTexte(renderer, "Exsudats racinaires", font, BLANC),
+										TextureTexte(renderer, "Pesticides", font, BLANC)};
+	
 	char score[10];
 	char record[10];
 	char temps[10];
@@ -115,12 +127,12 @@ int main(int argc, char *argv[])
 	int felicitations = 0;
 	int mv = 1;
 	
-//------------Lancement du jeu, en boucle infinie-----------------------
+	//------------Lancement du jeu, en boucle infinie-----------------------
 	
 	while (program_launched)
 	{
 //------------Régénérer l'affichage dans la fenêtre---------------------
-		
+			
 		if (SDL_RenderClear(renderer) != 0) 
 			SDL_ExitWithError("Liberation du rendu echouee");
 		
@@ -136,25 +148,24 @@ int main(int argc, char *argv[])
 		if (SDL_RenderDrawLines(renderer, bord, 5) != 0)
 			SDL_ExitWithError("Impossible de dessiner un rectangle");
 		
-		
 //------------Affichage des informations--------------------------------				
 
 		sprintf(temps, "%02d : %02d", lombric->maintenant / 60, lombric->maintenant % 60);
-		EcrireTexte(renderer, temps, font, LARGEUR_FENETRE - 80, HAUTEUR_FENETRE - 25, 70, 25, BLANC);
+		EcrireTexteProvisoire(renderer, temps, font, LARGEUR_FENETRE - 80, HAUTEUR_FENETRE - 25, 70, 25, BLANC);
 		
 		sprintf(score, "%5d", lombric->point);
-		EcrireTexte(renderer, score, font, LARGEUR_FENETRE - 205, 40, 150, 100, BLANC);
+		EcrireTexteProvisoire(renderer, score, font, LARGEUR_FENETRE - 205, 40, 150, 100, BLANC);
 		
 		sprintf(record, "%5d", records_temp->points);
-		EcrireTexte(renderer, record, font, LARGEUR_FENETRE - 50, 95, 48, 25, GRIS);
+		EcrireTexteProvisoire(renderer, record, font, LARGEUR_FENETRE - 50, 95, 48, 25, GRIS);
 		
 		if (SDL_RenderCopy(renderer, textureimage, NULL, &rect_image) != 0) // copier dans le rendu l'image en memoire
 			SDL_ExitWithError("Impossible d'afficher la texture");			
 		
-		AfficherCommandes(renderer, font);
+		AfficherCommandes(renderer, texture_commande);
 		
-		AfficherLegende(renderer, font);
-
+		AfficherLegende(renderer, texture_legende);
+		
 //------------Que veut faire le joueur SDL_Event-------------------------------
 		
 		bouton = EntreeJoueur();
@@ -172,7 +183,7 @@ int main(int argc, char *argv[])
 				faux_mouvement(lombric_affiche->tete, lombric->vitesse);
 			
 			mv++;
-				
+			
 //------------Level up ?------------------------------------------------
 
 			if (NiveauSupplementaire(lombric) == VRAI)
@@ -216,13 +227,13 @@ int main(int argc, char *argv[])
 		
 			MiseAJourRecords(lombric, records_temp);	
 		}		
-				
+					
 //------------Affichage des objets--------------------------------------
 
 		AfficherCadeau(renderer, &rect_cadeau, cadeau);
 		AfficherLombric(renderer, &rect_cadeau, lombric_affiche->tete);
 		if (SDL_GetTicks() - anim_niveau < 1000)
-			EcrireTexte(renderer, "Nv++", font, lombric_affiche->tete->x, lombric_affiche->tete->y - 2 * TUILE, 50, 60, JAUNE);	
+			EcrireTexteProvisoire(renderer, "Nv++", font, lombric_affiche->tete->x, lombric_affiche->tete->y - 2 * TUILE, 50, 60, JAUNE);	
 			
 //------------Partie arrêtée--------------------------------------------
 
@@ -286,12 +297,11 @@ int main(int argc, char *argv[])
 			bouton = SANS;
 			felicitations = 0;
 		}
-				
-							
+								
 //------------Générer l'image et attendre le tick-----------------------
 
 		SDL_RenderPresent(renderer);
-			
+		
 		frame_limit = SDL_GetTicks() + FPS; 
 		limit_fps(frame_limit);
 		frame_limit = SDL_GetTicks() + FPS;
@@ -304,12 +314,18 @@ int main(int argc, char *argv[])
 	fprintf(sauvegarde, "%d\n", records_temp->points);
 	fprintf(sauvegarde, "%d\n", records_temp->niveau);
 	fprintf(sauvegarde, "%d\n", records_temp->temps);
+	fprintf(sauvegarde, "%d\n", records_temp->longueur);
 	printf("sauvegarde mise a jour\n");
 	fclose(sauvegarde);
 
 
 //------------Sortie de la boucle, on nettoie tout----------------------
 	
+	for (int i = 0; i < 6; i++)
+		SDL_DestroyTexture(texture_commande[i]);
+	for (int i = 0; i < 6; i++)
+		SDL_DestroyTexture(texture_legende[i]);
+		
 	LibererCadeaux(cadeau);
 	LibererAnneaux(lombric->tete);
 	LibererAnneaux(lombric_affiche->tete);
