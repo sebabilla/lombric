@@ -31,8 +31,6 @@ libsdl2-mixer
 libsdl2-ttf
 ```
 Télécharger et décompresser **[lombric_linux.0.1.zip](https://github.com/sebabilla/lombric/releases/download/v0.1/lombric_linux.0.1.zip)** puis lancer **lombric**. (éventuellement rendre le fichier executable avec un clic droit)
-TODO le .zip
-
 
 ### Compilation
 
