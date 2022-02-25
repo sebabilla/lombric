@@ -13,13 +13,13 @@ Dans "Lombric in C", il faut gerer le type de nourriture ingérer pour survivre 
 Jouable au clavier ou à la manette. 
 Mon deuxième jeu, le but était d'utiliser les fonctions malloc() / free(), des listes et des recursions, et qu'à la fin valgrind ne grogne pas.
 
-Un aperçu de la jouabilité en vidéo https://youtu.be/ksWw5Loyjzw  
+Un aperçu de la jouabilité [en vidéo](https://youtu.be/ksWw5Loyjzw)  
 
-![Aperçu](res/demo.png) A CONFIRMER
+![Aperçu](res/demo.png)
 
 ### Windows (testé sur Windows 10 64 bits)
 
-Télécharger et décompresser **lombric_windows.X.X.zip** puis lancer **lombric.exe**.
+Télécharger et décompresser **[lombric_windows.0.1.zip](https://github.com/sebabilla/lombric/releases/download/v0.1/lombric_windows.0.1.zip)** puis lancer **lombric.exe**.
 
 ### Linux (testé sous Xubuntu 21.10 64 bits)
 
@@ -30,7 +30,7 @@ libsdl2
 libsdl2-mixer
 libsdl2-ttf
 ```
-Télécharger et décompresser **lombric_linux.X.X.zip** puis lancer **lombric**. (éventuellement rendre le fichier executable avec un clic droit)
+Télécharger et décompresser **[lombric_linux.0.1.zip](https://github.com/sebabilla/lombric/releases/download/v0.1/lombric_linux.0.1.zip)** puis lancer **lombric**. (éventuellement rendre le fichier executable avec un clic droit)
 TODO le .zip
 
 
