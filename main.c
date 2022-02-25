@@ -2,12 +2,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <SDL_mixer.h>
 #include <SDL_ttf.h>
 
 #include "lombric.h"
 #include "cadeau.h"
 #include "affichage.h"
 #include "controle.h"
+
+Mix_Music *ChargementBruitage(const char *lien);
 
 int main(int argc, char *argv[])
 {
@@ -38,6 +41,23 @@ int main(int argc, char *argv[])
 		printf("Impossible de creer une sauvegarde");
 		exit(EXIT_FAILURE);
 	}
+
+//------------------Chargement des bruitages----------------------------
+
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) < 0)
+	{
+		Mix_CloseAudio();
+		SDL_ExitWithError("Initiation son");
+	}
+		
+	Mix_Music *bruitages[8] = {ChargementBruitage("res/grignote1.mp3"),
+								ChargementBruitage("res/grignote2.mp3"),
+								ChargementBruitage("res/grignote3.mp3"),
+								ChargementBruitage("res/bulle.mp3"),
+								ChargementBruitage("res/impact.mp3"),
+								ChargementBruitage("res/cloche.mp3"),
+								ChargementBruitage("res/cri.mp3"),
+								ChargementBruitage("res/mur.mp3")};
 
 //------------------Création d'une fenêtre et de son rendu--------------
 	
@@ -197,6 +217,7 @@ int main(int argc, char *argv[])
 				{
 					CadeauSupplementaire(cadeau, cadeau, lombric->tete);
 					anim_niveau = SDL_GetTicks();
+					Mix_PlayMusic(bruitages[5], 1);
 				}	
 			}
 		
@@ -205,13 +226,36 @@ int main(int argc, char *argv[])
 			if (CollisionCadeau(cadeau, lombric->tete->x, lombric->tete->y) == VRAI)
 			{
 				lombric->evm = GestionCadeau(cadeau, cadeau, lombric->tete);
+				switch(lombric->evm)
+				{
+					case MO:
+						int bruit = rand() % 3;
+						Mix_PlayMusic(bruitages[bruit], 1);
+						break;
+					case VITPLUS:
+						Mix_PlayMusic(bruitages[3], 1);
+						break;
+					case VITMOINS:
+						Mix_PlayMusic(bruitages[4], 1);
+						break;
+					default:
+						break;
+				}
 				lombric->point += lombric->longueur;
 			}
 						
-			if ((CollisionTeteMur(lombric->tete) == VRAI) || 
-				(CollisionLombric(lombric->tete, lombric->tete->x, lombric->tete->y, VRAI) == VRAI))
+			
+			if (CollisionLombric(lombric->tete, lombric->tete->x, lombric->tete->y, VRAI) == VRAI)
+			{
 				partie = PERDU;
-
+				Mix_PlayMusic(bruitages[6], 1);
+			}
+			if (CollisionTeteMur(lombric->tete) == VRAI)
+			{
+				partie = PERDU;
+				Mix_PlayMusic(bruitages[7], 1);
+			} 
+			
 //------------Actualiser les compteurs----------------------------------
 
 			DiminuerCompteur(cadeau, cadeau, lombric->tete);
@@ -325,6 +369,8 @@ int main(int argc, char *argv[])
 		SDL_DestroyTexture(texture_commande[i]);
 	for (int i = 0; i < 6; i++)
 		SDL_DestroyTexture(texture_legende[i]);
+	for (int i = 0; i < 5; i++)
+		Mix_FreeMusic(bruitages[i]);
 		
 	LibererCadeaux(cadeau);
 	LibererAnneaux(lombric->tete);
@@ -339,6 +385,17 @@ int main(int argc, char *argv[])
 	SDL_Quit();
 	
 	return EXIT_SUCCESS;
+}
+
+Mix_Music *ChargementBruitage(const char *lien)
+{
+Mix_Music *s = Mix_LoadMUS(lien);
+	if (s == NULL)
+	{
+		Mix_CloseAudio();
+		SDL_ExitWithError("chargement son");
+	}
+	return s;
 }
 
 

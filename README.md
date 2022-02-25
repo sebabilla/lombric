@@ -6,31 +6,45 @@ MIT License (voir LICENSE)
 
 ### C'est quoi?
 
-Mon deuxième jeu. Pas très beau, mais fonctionnel?  
-C'est un Snake-like game (original: PAS ENCORE) développé en C avec la SDL.  
-Dans "Lombric in C", il faut PAS ENCORE.  
-Jouable au clavier ou à la manette A CONFIRMER. 
+C'est un Snake-like game (original: Taneli Armanto, 1997) développé en C avec la SDL.  
+Dans "Lombric in C", il faut gerer le type de nourriture ingérer pour survivre le plus longtemps possible et devenir très long.  
+Jouable au clavier ou à la manette. 
+Mon deuxième jeu, le but était d'utiliser les fonctions malloc() / free(), des listes et des recursions, et qu'à la fin valgrind ne grogne pas.
 
-Un aperçu de la "jouabilité" en vidéo PAS ENCORE  
+Un aperçu de la jouabilité en vidéo PAS ENCORE  
 
 ![Aperçu](res/demo.png) A CONFIRMER
 
+### Windows (testé sur Windows 10 64 bits)
+
+Télécharger et décompresser **lombric_windows.zip** puis lancer **lombric.exe**.
+
+### Linux (testé sous Xubuntu 21.10 64 bits et TODO ARCH)
+
+Il faut avoir installé préalablemement:
+
+```bash
+libsdl2
+libsdl2-mixer
+libsdl2-ttf
+```
+Télécharger et décompresser **lombric_linux.zip** puis lancer **lombric**. (éventuellement rendre le fichier executable avc un clic droit)
+TODO le .zip
+
+
 ### Compilation
 
-Développé dans l'éditeur Geany 1.37.1 et testé sous Xubuntu 21.10 64 bits.  
-
-Pour pouvoir compiler, il faut avoir installé: A CONFIRMER
+Pour pouvoir compiler, il faut avoir installé:
 
 ```bash
 libsdl2-dev
 libsdl2-mixer-dev
 libsdl2-ttf-dev
 ```
-
-puis entrer dans un terminal: A CONFIRMER
+puis entrer dans un terminal: 
 
 ```bash
-gcc *.c -o lombric -lm -lSDL2_ttf -lSDL2_mixer $(sdl2-config --cflags --libs)
+gcc *.c -Wall -o lombric -lSDL2_ttf -lSDL2_mixer $(sdl2-config --cflags --libs)
 ```
 
 ### Crédits
@@ -39,11 +53,11 @@ De nombreuses parties du code sont adaptées ou inspirées de:
 * CS50x by David J. Malan https://cs50.harvard.edu/x/2021
 * FormationVideo - C cours by Jason Champagne https://www.youtube.com/c/Formationvidéo8/
 
-Les sons sont extraits et/ou adaptés de:
-* PAS ENCORE
+Sons:
+* Tous extraits de sons bruts téléchargés sur LaSonothèque de Joseph Sardin https://lasonotheque.org/apropos.html
 
-Les sprites sont adaptés de:
-* PAS ENCORE
+Font:
+* Orbitron  par Matt McInerney (Open Font License)
 
 
 
