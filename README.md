@@ -11,7 +11,7 @@ Dans "Lombric in C", il faut gerer le type de nourriture ingérer pour survivre 
 Jouable au clavier ou à la manette. 
 Mon deuxième jeu, le but était d'utiliser les fonctions malloc() / free(), des listes et des recursions, et qu'à la fin valgrind ne grogne pas.
 
-Un aperçu de la jouabilité en vidéo PAS ENCORE  
+Un aperçu de la jouabilité en vidéo https://youtu.be/ksWw5Loyjzw  
 
 ![Aperçu](res/demo.png) A CONFIRMER
 
