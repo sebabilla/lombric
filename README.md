@@ -1,4 +1,4 @@
-## Lombric in C
+## Lombric en C
 
 par Sébastien Abilla
 
