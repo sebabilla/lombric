@@ -4,6 +4,8 @@ par Sébastien Abilla
 
 MIT License (voir LICENSE)
 
+https://github.com/sebabilla/lombric
+
 ### C'est quoi?
 
 C'est un Snake-like game (original: Taneli Armanto, 1997) développé en C avec la SDL.  
@@ -17,9 +19,9 @@ Un aperçu de la jouabilité en vidéo https://youtu.be/ksWw5Loyjzw
 
 ### Windows (testé sur Windows 10 64 bits)
 
-Télécharger et décompresser **lombric_windows.zip** puis lancer **lombric.exe**.
+Télécharger et décompresser **lombric_windows.X.X.zip** puis lancer **lombric.exe**.
 
-### Linux (testé sous Xubuntu 21.10 64 bits et TODO ARCH)
+### Linux (testé sous Xubuntu 21.10 64 bits)
 
 Il faut avoir installé préalablemement:
 
@@ -28,7 +30,7 @@ libsdl2
 libsdl2-mixer
 libsdl2-ttf
 ```
-Télécharger et décompresser **lombric_linux.zip** puis lancer **lombric**. (éventuellement rendre le fichier executable avc un clic droit)
+Télécharger et décompresser **lombric_linux.X.X.zip** puis lancer **lombric**. (éventuellement rendre le fichier executable avec un clic droit)
 TODO le .zip
 
 
