@@ -10,6 +10,7 @@
 #include "affichage.h"
 #include "controle.h"
 
+Bool VerificationSauvegarde(const char *s);
 Mix_Music *ChargementBruitage(const char *lien);
 
 int main(int argc, char *argv[])
@@ -25,7 +26,7 @@ int main(int argc, char *argv[])
 	{
 		free(records_temp);
 		printf("Erreur d'allocation mémoire\n");
-		exit(EXIT_FAILURE);		
+		exit(EXIT_FAILURE);	
 	}
 	if (VerificationSauvegarde("sauvegarde.txt") == VRAI)
 	{
@@ -38,6 +39,7 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
+		free(records_temp);
 		printf("Impossible de creer une sauvegarde");
 		exit(EXIT_FAILURE);
 	}
@@ -46,8 +48,10 @@ int main(int argc, char *argv[])
 
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) < 0)
 	{
+		free(records_temp);
 		Mix_CloseAudio();
-		SDL_ExitWithError("Initiation son");
+		printf("Impossible d'initialiser son");
+		exit(EXIT_FAILURE);
 	}
 		
 	Mix_Music *bruitages[8] = {ChargementBruitage("res/grignote1.mp3"),
@@ -56,7 +60,6 @@ int main(int argc, char *argv[])
 								ChargementBruitage("res/bulle.mp3"),
 								ChargementBruitage("res/impact.mp3"),
 								ChargementBruitage("res/cloche.mp3"),
-								ChargementBruitage("res/cri.mp3"),
 								ChargementBruitage("res/mur.mp3")};
 
 //------------------Création d'une fenêtre et de son rendu--------------
@@ -145,9 +148,9 @@ int main(int argc, char *argv[])
 	int pause_maintenant;
 	int anim_niveau = 0;
 	int felicitations = 0;
-	int mv = 1;
+	int faux_mouvement = 1;
 	
-	//------------Lancement du jeu, en boucle infinie-----------------------
+//------------Lancement du jeu, en boucle infinie-----------------------
 	
 	while (program_launched)
 	{
@@ -193,16 +196,17 @@ int main(int argc, char *argv[])
 		if (partie == ENCOURS)
 		{
 			ChangerDirection(bouton, lombric);
-			if (mv == TUILE - lombric->vitesse)
+			
+			if (faux_mouvement == TUILE - lombric->vitesse)
 			{
 				Bouger(lombric);
 				CopieLombric(lombric, lombric_affiche);
-				mv = 1;
+				faux_mouvement = 1;
 			}
 			else
-				faux_mouvement(lombric_affiche->tete, lombric->vitesse);
+				FauxMouvement(lombric_affiche->tete, lombric->vitesse);
 			
-			mv++;
+			faux_mouvement++;
 			
 //------------Level up ?------------------------------------------------
 
@@ -238,33 +242,33 @@ int main(int argc, char *argv[])
 					case VITMOINS:
 						Mix_PlayMusic(bruitages[4], 1);
 						break;
+					case PLUSDEPLACE:
+						partie = FIN;
+						break;						
 					default:
 						break;
 				}
 				lombric->point += lombric->longueur;
 			}
 						
-			
 			if (CollisionLombric(lombric->tete, lombric->tete->x, lombric->tete->y, VRAI) == VRAI)
 			{
 				partie = PERDU;
 				Mix_PlayMusic(bruitages[6], 1);
 			}
-			if (CollisionTeteMur(lombric->tete) == VRAI)
-			{
-				partie = PERDU;
-				Mix_PlayMusic(bruitages[7], 1);
-			} 
+			
+			CollisionTeteMur(lombric->tete);
 			
 //------------Actualiser les compteurs----------------------------------
 
 			DiminuerCompteur(cadeau, cadeau, lombric->tete);
-				lombric->maintenant = (SDL_GetTicks() - debut) / 1000;
+			
+			lombric->maintenant = (SDL_GetTicks() - debut) / 1000;
 		
 			if (lombric->niveau == 8 && felicitations == 0)
 			{
 				pause_maintenant = SDL_GetTicks();
-				partie = VICTOIRE;
+				partie = NIVEAU8;
 			}
 				
 			lombric->longueur = LongueurLombric(lombric->tete) - 1;		
@@ -296,7 +300,7 @@ int main(int argc, char *argv[])
 					partie = ENCOURS;
 				break;
 				
-			case VICTOIRE:
+			case NIVEAU8:
 				felicitations = 1;
 				AfficherFelecitations(renderer, font);
 				AfficherRecords(renderer, font, records_temp);
@@ -309,6 +313,13 @@ int main(int argc, char *argv[])
 				if (bouton == COMMENCER)
 					partie = ENCOURS;
 				break;
+				
+			case FIN:
+				AfficherMegaFelecitations(renderer, font);
+				AfficherRecords(renderer, font, records_temp);
+				if (bouton == COMMENCER)
+					partie = ENCOURS;
+				break;				
 			
 			case PERDU:
 				AfficherPerdu(renderer, font);
@@ -387,15 +398,42 @@ int main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
+Bool VerificationSauvegarde(const char *s)
+{
+	FILE *sauvegarde;
+	if ((sauvegarde = fopen(s, "r")))
+	{
+		printf("Sauvegarde trouvee\n");
+		fclose(sauvegarde);
+		return VRAI;
+	}
+		
+	sauvegarde = fopen(s, "w");
+	if (sauvegarde == NULL)
+	{
+		printf("impossible de creer une sauvegarde\n");
+		exit(EXIT_FAILURE);
+	}
+	fprintf(sauvegarde, "%d\n", 0);
+	fprintf(sauvegarde, "%d\n", 0);
+	fprintf(sauvegarde, "%d\n", 0);
+	fprintf(sauvegarde, "%d\n", 0);
+	printf("sauvegarde creee\n");
+	fclose(sauvegarde);
+	return VRAI;
+}
+
 Mix_Music *ChargementBruitage(const char *lien)
 {
 Mix_Music *s = Mix_LoadMUS(lien);
 	if (s == NULL)
 	{
 		Mix_CloseAudio();
-		SDL_ExitWithError("chargement son");
+		printf("Impossible de charger les sons son");
+		exit(EXIT_FAILURE);
 	}
 	return s;
 }
+
 
 

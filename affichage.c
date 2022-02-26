@@ -1,8 +1,8 @@
 #include <SDL.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <SDL_ttf.h>
 #include "lombric.h"
+#include "cadeau.h"
 #include "affichage.h"
 
 void SDL_ExitWithError(const char *message)
@@ -87,78 +87,7 @@ void AfficherLombric(SDL_Renderer *r, SDL_Rect *rect_c, Anneau *a)
 	if (a->suivant != NULL)
 		AfficherLombric(r, rect_c, a->suivant);
 		
-	if (a->tete == VRAI)
-	{
-		SDL_Rect rect_tete = {.w = 12, .h = 12};
-		SDL_Rect rect_oeil = {.w = 10, .h = 10};
-		
-		switch(a->dir)
-		{
-			case HAUT:
-				rect_tete.x = a->x + 6; rect_tete.y = a->y + 13;
-				if (SDL_SetRenderDrawColor(r, 255, 180, 195, SDL_ALPHA_OPAQUE) != 0)
-					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
-				if (SDL_RenderFillRect(r, &rect_tete) != 0)
-					SDL_ExitWithError("Impossible de dessiner un rectangle");
-				if (SDL_SetRenderDrawColor(r, 255, 255, 255, SDL_ALPHA_OPAQUE) != 0)
-					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
-				rect_oeil.x = a->x - 5; rect_oeil.y = a->y + 15;
-				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
-					SDL_ExitWithError("Impossible de dessiner un rectangle");
-				rect_oeil.x = a->x + 20; rect_oeil.y = a->y + 15;
-				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
-					SDL_ExitWithError("Impossible de dessiner un rectangle");
-				break;
-			case BAS:
-				rect_tete.x = a->x + 6; rect_tete.y = a->y;
-				if (SDL_SetRenderDrawColor(r, 255, 180, 195, SDL_ALPHA_OPAQUE) != 0)
-					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
-				if (SDL_RenderFillRect(r, &rect_tete) != 0)
-					SDL_ExitWithError("Impossible de dessiner un rectangle");
-				if (SDL_SetRenderDrawColor(r, 255, 255, 255, SDL_ALPHA_OPAQUE) != 0)
-					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
-				rect_oeil.x = a->x - 5; rect_oeil.y = a->y;
-				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
-					SDL_ExitWithError("Impossible de dessiner un rectangle");
-				rect_oeil.x = a->x + 20; rect_oeil.y = a->y;
-				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
-					SDL_ExitWithError("Impossible de dessiner un rectangle");
-				break;
-			case GAUCHE:
-				rect_tete.x = a->x + 13; rect_tete.y = a->y + 6;
-				if (SDL_SetRenderDrawColor(r, 255, 180, 195, SDL_ALPHA_OPAQUE) != 0)
-					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
-				if (SDL_RenderFillRect(r, &rect_tete) != 0)
-					SDL_ExitWithError("Impossible de dessiner un rectangle");
-				if (SDL_SetRenderDrawColor(r, 255, 255, 255, SDL_ALPHA_OPAQUE) != 0)
-					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
-				rect_oeil.x = a->x + 15; rect_oeil.y = a->y - 5;
-				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
-					SDL_ExitWithError("Impossible de dessiner un rectangle");
-				rect_oeil.x = a->x + 15; rect_oeil.y = a->y + 20;
-				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
-					SDL_ExitWithError("Impossible de dessiner un rectangle");
-				break;
-			case DROITE:
-				rect_tete.x = a->x; rect_tete.y = a->y + 6;
-				if (SDL_SetRenderDrawColor(r, 255, 180, 195, SDL_ALPHA_OPAQUE) != 0)
-					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
-				if (SDL_RenderFillRect(r, &rect_tete) != 0)
-					SDL_ExitWithError("Impossible de dessiner un rectangle");
-				if (SDL_SetRenderDrawColor(r, 255, 255, 255, SDL_ALPHA_OPAQUE) != 0)
-					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
-				rect_oeil.x = a->x; rect_oeil.y = a->y - 5;
-				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
-					SDL_ExitWithError("Impossible de dessiner un rectangle");
-				rect_oeil.x = a->x; rect_oeil.y = a->y + 20;
-				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
-					SDL_ExitWithError("Impossible de dessiner un rectangle");
-				break;
-			default:
-				break;
-		}
-	}
-	else
+	if (a->tete != VRAI)
 	{
 		rect_c->x = a->x;
 		rect_c->y = a->y;		
@@ -170,6 +99,56 @@ void AfficherLombric(SDL_Renderer *r, SDL_Rect *rect_c, Anneau *a)
 			SDL_ExitWithError("Impossible de changer la couleur du rendu");	
 		if (SDL_RenderDrawRect(r, rect_c) != 0)
 			SDL_ExitWithError("Impossible de dessiner un rectangle");
+	}
+	else
+	{
+		SDL_Rect rect_oeil = {.w = 10, .h = 10};
+		
+		switch(a->dir)
+		{
+			case HAUT:
+				if (SDL_SetRenderDrawColor(r, 255, 255, 255, SDL_ALPHA_OPAQUE) != 0)
+					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
+				rect_oeil.x = a->x - 5; rect_oeil.y = a->y + TUILE;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				rect_oeil.x = a->x + 20; rect_oeil.y = a->y + TUILE;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				break;
+			case BAS:
+				if (SDL_SetRenderDrawColor(r, 255, 255, 255, SDL_ALPHA_OPAQUE) != 0)
+					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
+				rect_oeil.x = a->x - 5; rect_oeil.y = a->y - 10;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				rect_oeil.x = a->x + 20; rect_oeil.y = a->y - 10;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				break;
+			case GAUCHE:
+				if (SDL_SetRenderDrawColor(r, 255, 255, 255, SDL_ALPHA_OPAQUE) != 0)
+					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
+				rect_oeil.x = a->x + TUILE; rect_oeil.y = a->y - 5;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				rect_oeil.x = a->x + TUILE; rect_oeil.y = a->y + 20;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				break;
+			case DROITE:
+				if (SDL_SetRenderDrawColor(r, 255, 255, 255, SDL_ALPHA_OPAQUE) != 0)
+					SDL_ExitWithError("Impossible de changer la couleur du rendu");	
+				rect_oeil.x = a->x - 10; rect_oeil.y = a->y - 5;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				rect_oeil.x = a->x - 10; rect_oeil.y = a->y + 20;
+				if (SDL_RenderFillRect(r, &rect_oeil) != 0)
+					SDL_ExitWithError("Impossible de dessiner un rectangle");
+				break;
+			default:
+				break;
+		}
 	}
 }
 
@@ -189,11 +168,7 @@ SDL_Texture *TextureTexte(SDL_Renderer *r, char *texte, TTF_Font *f, CouleurText
 	{
 		couleur.r = 250; couleur.g = 250; couleur.b = 0, couleur.a = 0;
 	}
-	if (c == NOIR)
-	{
-		couleur.r = 0; couleur.g = 0; couleur.b = 0, couleur.a = 0;
-	}
-									
+										
 	SDL_Surface *surface_message = TTF_RenderUTF8_Solid(f, texte, couleur);
 	SDL_Texture *message = SDL_CreateTextureFromSurface(r, surface_message);
 	SDL_FreeSurface(surface_message);
@@ -222,8 +197,13 @@ void AfficherPerdu(SDL_Renderer *r, TTF_Font *f)
 void AfficherFelecitations(SDL_Renderer *r, TTF_Font *f)
 {
 	EcrireTexteProvisoire(r, "Niveau 8! FELICITATIONS!", f, SHIFT + LARGEUR_TERRAIN / 2 - 250, SHIFT + HAUTEUR_TERRAIN / 2 - 50, 500, 100, JAUNE);
-	EcrireTexteProvisoire(r, "Je pensais cela impossible! 'Espace' pour aller encore plus loin!", f, SHIFT + LARGEUR_TERRAIN / 2 - 350, SHIFT + HAUTEUR_TERRAIN / 2 + 50, 700, 50, JAUNE);
-	
+	EcrireTexteProvisoire(r, "Je pensais cela impossible! 'Espace' pour aller encore plus loin!", f, SHIFT + LARGEUR_TERRAIN / 2 - 350, SHIFT + HAUTEUR_TERRAIN / 2 + 50, 700, 50, JAUNE);	
+}
+
+void AfficherMegaFelecitations(SDL_Renderer *r, TTF_Font *f)
+{
+	EcrireTexteProvisoire(r, "FIN! MEGA-FELICITATIONS!", f, SHIFT + LARGEUR_TERRAIN / 2 - 250, SHIFT + HAUTEUR_TERRAIN / 2 - 50, 500, 100, JAUNE);
+	EcrireTexteProvisoire(r, "Comment as-tu fait?? Envoie-moi une capture d'écran, stp?'", f, SHIFT + LARGEUR_TERRAIN / 2 - 350, SHIFT + HAUTEUR_TERRAIN / 2 + 50, 700, 50, JAUNE);	
 }
 
 void AfficherCommandes(SDL_Renderer *r, SDL_Texture **text_t)

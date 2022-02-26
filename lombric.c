@@ -2,31 +2,6 @@
 #include <stdlib.h>
 #include "lombric.h"
 
-Bool VerificationSauvegarde(const char *s)
-{
-	FILE *sauvegarde;
-	if ((sauvegarde = fopen(s, "r")))
-	{
-		printf("Sauvegarde trouvee\n");
-		fclose(sauvegarde);
-		return VRAI;
-	}
-		
-	sauvegarde = fopen(s, "w");
-	if (sauvegarde == NULL)
-	{
-		printf("impossible de creer une sauvegarde\n");
-		exit(EXIT_FAILURE);
-	}
-	fprintf(sauvegarde, "%d\n", 0);
-	fprintf(sauvegarde, "%d\n", 0);
-	fprintf(sauvegarde, "%d\n", 0);
-	fprintf(sauvegarde, "%d\n", 0);
-	printf("sauvegarde creee\n");
-	fclose(sauvegarde);
-	return VRAI;
-}
-
 Lombric *NouveauLombric()
 {
 	Anneau *a = malloc(sizeof(Anneau));
@@ -34,7 +9,7 @@ Lombric *NouveauLombric()
 	{
 		free(a);
 		printf("Erreur d'allocation mémoire\n");
-		return NULL;
+		exit(EXIT_FAILURE);
 	}
 	
 	a->x = LARGEUR_TERRAIN / TUILE * TUILE / 2 + SHIFT; // pour être sur une tuile
@@ -50,7 +25,7 @@ Lombric *NouveauLombric()
 		free(l);
 		free(a);
 		printf("Erreur d'allocation mémoire\n");
-		return NULL;
+		exit(EXIT_FAILURE);
 	}
 	
 	l->evm = RIEN;
@@ -84,15 +59,15 @@ Anneau *CopierAnneaux(Anneau *a)
 	{
 		free(nouveau);
 		printf("Erreur d'allocation mémoire\n");
-		return NULL;
+		exit(EXIT_FAILURE);
 	}
   
     nouveau->x = a->x;
     nouveau->y = a->y;
     nouveau->tete = a->tete;
 	nouveau->dir = a->dir;
-        
-    nouveau->suivant = CopierAnneaux(a->suivant);
+	
+	nouveau->suivant = CopierAnneaux(a->suivant);
   
     return nouveau;
 }
@@ -106,7 +81,7 @@ Anneau *AjouterQueue(Anneau *a, Bool nouveau)
 		{
 			free(n);
 			printf("Erreur d'allocation mémoire\n");
-			return NULL;
+			exit(EXIT_FAILURE);
 		}
 		
 		n->dir = a->dir;
@@ -160,7 +135,7 @@ Lombric *NouvelleTete(Lombric *l)
 	{
 		free(a);
 		printf("Erreur d'allocation mémoire\n");
-		return NULL;
+		exit(EXIT_FAILURE);
 	}
 	
 	switch (l->tete->dir)
@@ -262,41 +237,40 @@ Lombric *Bouger(Lombric *l)
 	return l;
 }
 
-void faux_mouvement(Anneau *acopie, int v)
+void FauxMouvement(Anneau *acopie, int v)
 {
 	if (acopie->suivant != NULL)
-		faux_mouvement(acopie->suivant, v);
+		FauxMouvement(acopie->suivant, v);
 	
 	switch(acopie->dir)
-		{
-			case HAUT:
-				acopie->y -= (float)TUILE / (TUILE - v);
-				break;
-			case BAS:
-				acopie->y += (float)TUILE / (TUILE - v);
-				break;
-			case GAUCHE:
-				acopie->x -= (float)TUILE / (TUILE - v);
-				break;
-			case DROITE:
-				acopie->x += (float)TUILE / (TUILE - v);
-				break;
-			default:
-				break;
-		}
+	{
+		case HAUT:
+			acopie->y -= (float)TUILE / (TUILE - v);
+			break;
+		case BAS:
+			acopie->y += (float)TUILE / (TUILE - v);
+			break;
+		case GAUCHE:
+			acopie->x -= (float)TUILE / (TUILE - v);
+			break;
+		case DROITE:
+			acopie->x += (float)TUILE / (TUILE - v);
+			break;
+		default:
+			break;
+	}
 }
 
-Bool CollisionTeteMur(Anneau *a)
+void CollisionTeteMur(Anneau *a)
 {
 	if (a->x < 0)
-		return VRAI;
+		a->x = LARGEUR_TERRAIN - TUILE + SHIFT;
 	if (a->x > LARGEUR_TERRAIN)
-		return VRAI;
+		a->x = SHIFT;
 	if (a->y < 0)
-		return VRAI;
+		a->y = HAUTEUR_TERRAIN - TUILE + SHIFT;
 	if (a->y > HAUTEUR_TERRAIN)
-		return VRAI;
-	return FAUX;
+		a->y = SHIFT;
 }
 
 Bool CollisionLombric(Anneau *a, int x, int y, Bool vieux)
@@ -373,16 +347,6 @@ Bool NiveauSupplementaire(Lombric *l)
 		
 	return FAUX;
 }
-
-/*
-void VieillirLombric(Anneau *a)
-{
-	a->age++;
-	
-	if (a->suivant != NULL)
-		VieillirLombric(a->suivant);
-}
-*/
 
 void MiseAJourRecords(Lombric *l, Records *rt)
 {

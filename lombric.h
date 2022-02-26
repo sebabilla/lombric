@@ -18,7 +18,7 @@ typedef enum Bool
 
 typedef enum Partie
 {
-	ENCOURS, ENPAUSE, PERDU, VICTOIRE
+	ENCOURS, ENPAUSE, PERDU, NIVEAU8, FIN
 } Partie;
 
 typedef enum Direction
@@ -28,13 +28,13 @@ typedef enum Direction
 
 typedef enum CouleurTexte
 {
-	BLANC, GRIS, JAUNE, NOIR
+	BLANC, GRIS, JAUNE
 } CouleurTexte;
 
 typedef enum Evenement
 {
-	RIEN, BORD,
-	LOMBRIC, LANGLE, LOMBRICAGE,
+	RIEN, PLUSDEPLACE,
+	LOMBRIC,
 	MO, MODISP, MODISPARITION, 
 	VITPLUS, VITPLUSDISP, VITPLUSDISPARITION, 
 	VITMOINS, VITMOINSDISP, VITMOINSDISPARITION
@@ -69,17 +69,6 @@ typedef struct Lombric
 	Anneau *tete;
 } Lombric;
 
-typedef struct Cadeau
-{
-	int x;
-	int y;
-	Evenement evm[3];
-	int compteur;
-	struct Cadeau *suivant;
-} Cadeau;
-
-Bool VerificationSauvegarde(const char *s);
-
 Lombric *NouveauLombric(void);
 void CopieLombric(Lombric *loriginal, Lombric *lcopie);
 Anneau *CopierAnneaux(Anneau *a);
@@ -89,12 +78,11 @@ Lombric *NouvelleTete(Lombric *l);
 void DetruireQueue(Anneau *a);
 void ChangerDirection(int b, Lombric *l);
 Lombric *Bouger(Lombric *l);
-void faux_mouvement(Anneau *acopie, int v);
-Bool CollisionTeteMur(Anneau *a);
+void FauxMouvement(Anneau *acopie, int v);
+void CollisionTeteMur(Anneau *a);
 Bool CollisionLombric(Anneau *a, int x, int y, Bool vieux);
 int LongueurLombric(Anneau *a);
 Bool NiveauSupplementaire(Lombric *l);
-//void VieillirLombric(Anneau *a);
 void MiseAJourRecords(Lombric *l, Records *rt);
 
 #endif

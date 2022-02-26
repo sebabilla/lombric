@@ -9,17 +9,17 @@ https://github.com/sebabilla/lombric
 ### C'est quoi?
 
 C'est un Snake-like game (original: Taneli Armanto, 1997) développé en C avec la SDL.  
-Dans "Lombric in C", il faut gerer le type de nourriture ingérer pour survivre le plus longtemps possible et devenir très long.  
+Dans "Lombric in C", il faut gérer le type de nourriture ingérée pour survivre le plus longtemps possible et devenir très très long.  
 Jouable au clavier ou à la manette. 
 Mon deuxième jeu, le but était d'utiliser les fonctions malloc() / free(), des listes et des recursions, et qu'à la fin valgrind ne grogne pas.
 
-Un aperçu de la jouabilité [en vidéo](https://youtu.be/ksWw5Loyjzw)  
+Un aperçu de la jouabilité [en vidéo](https://youtu.be/YMGR30RZDko)  
 
 ![Aperçu](res/demo.png)
 
 ### Windows (testé sur Windows 10 64 bits)
 
-Télécharger et décompresser **[lombric_windows.0.1.zip](https://github.com/sebabilla/lombric/releases/download/v0.1/lombric_windows.0.1.zip)** puis lancer **lombric.exe**.
+Télécharger et décompresser **[lombric_windows.0.1.zip](https://github.com/sebabilla/lombric/releases/download/v0.2/lombric_windows.0.2.zip)** puis lancer **lombric.exe**.
 
 ### Linux (testé sous Xubuntu 21.10 64 bits)
 
@@ -30,7 +30,7 @@ libsdl2
 libsdl2-mixer
 libsdl2-ttf
 ```
-Télécharger et décompresser **[lombric_linux.0.1.zip](https://github.com/sebabilla/lombric/releases/download/v0.1/lombric_linux.0.1.zip)** puis lancer **lombric**. (éventuellement rendre le fichier executable avec un clic droit)
+Télécharger et décompresser **[lombric_linux.0.1.zip](https://github.com/sebabilla/lombric/releases/download/v0.2/lombric_linux.0.2.zip)** puis lancer **lombric**. (éventuellement rendre le fichier executable avec un clic droit)
 
 ### Compilation
 

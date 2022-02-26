@@ -10,7 +10,7 @@ Cadeau *NouveauCadeau(Cadeau *c, Anneau *a)
 	{
 		free(n);
 		printf("Erreur d'allocation mémoire\n");
-		return NULL;
+		exit(EXIT_FAILURE);
 	}
 	
 	n->x = 0;	
@@ -88,8 +88,10 @@ Evenement GestionCadeau(Cadeau *c, Cadeau *testc, Anneau *a)
 	if ((abs(c->y - a->y) < TUILE / 2) && (abs(c->x - a->x) < TUILE / 2))
 	{
 		tmp = c->evm[0];
-		ResetCadeau(c, testc, a);
-		return tmp;		
+		if ((ResetCadeau(c, testc, a)) == VRAI)
+			return tmp;	
+		else
+			return PLUSDEPLACE;
 	}
 	
 	return GestionCadeau(c->suivant, testc, a);	
@@ -117,7 +119,7 @@ void LibererCadeaux(Cadeau *c)
 Bool CollisionCadeau(Cadeau *c, int x, int y)
 {
 	if ((abs(c->y - y) < TUILE / 2) && (abs(c->x - x) < TUILE / 2))
-			return VRAI;
+		return VRAI;
 	
 	if (c->suivant != 0)
 		return CollisionCadeau(c->suivant, x, y);

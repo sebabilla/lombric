@@ -1,6 +1,15 @@
 #ifndef __CADEAU__H__
 #define __CADEAU__H__
 
+typedef struct Cadeau
+{
+	int x;
+	int y;
+	Evenement evm[3];
+	int compteur;
+	struct Cadeau *suivant;
+} Cadeau;
+
 Cadeau *NouveauCadeau(Cadeau *c, Anneau *a);
 Bool ResetCadeau(Cadeau *c, Cadeau *testc, Anneau *testa);
 void CadeauSupplementaire(Cadeau *c, Cadeau *testc, Anneau *testa);
