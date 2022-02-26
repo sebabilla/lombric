@@ -19,7 +19,7 @@ Un aperçu de la jouabilité [en vidéo](https://youtu.be/YMGR30RZDko)
 
 ### Windows (testé sur Windows 10 64 bits)
 
-Télécharger et décompresser **[lombric_windows.0.1.zip](https://github.com/sebabilla/lombric/releases/download/v0.2/lombric_windows.0.2.zip)** puis lancer **lombric.exe**.
+Télécharger et décompresser **[lombric_windows.0.2.zip](https://github.com/sebabilla/lombric/releases/download/v0.2/lombric_windows.0.2.zip)** puis lancer **lombric.exe**.
 
 ### Linux (testé sous Xubuntu 21.10 64 bits)
 
@@ -30,7 +30,7 @@ libsdl2
 libsdl2-mixer
 libsdl2-ttf
 ```
-Télécharger et décompresser **[lombric_linux.0.1.zip](https://github.com/sebabilla/lombric/releases/download/v0.2/lombric_linux.0.2.zip)** puis lancer **lombric**. (éventuellement rendre le fichier executable avec un clic droit)
+Télécharger et décompresser **[lombric_linux.0.2.zip](https://github.com/sebabilla/lombric/releases/download/v0.2/lombric_linux.0.2.zip)** puis lancer **lombric**. (éventuellement rendre le fichier executable avec un clic droit)
 
 ### Compilation
 
